@@ -1,0 +1,6 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    "python.analysis.extraPaths": [
+        "/global/u1/s/savu/.local/perlmutter/pytorch2.13.0/lib/python3.12/site-packages"
+    ]
+}

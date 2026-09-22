@@ -1,0 +1,33 @@
+ coarsen:
+    enabled: true
+    method: spectral_sharp # sharp Fourier low-pass, NOT strided subsampling.
+      # Strided subsampling aliases unresolved small-scale energy back
+      # onto the retained scales — it corrupts exactly the large scales
+      # the coarse field exists to preserve.
+    target_grid: [64, 64, 64] # 6x. k_c = Nc/2 - 1 = 31; the coarse Nyquist plane is
+      # zeroed rather than folded, which keeps the coefficient array
+      # Hermitian-consistent and the output real by construction.
+    cache_dir: data/processed/hit-coarse-64
+    # Verified to machine precision on real data (probe notebook §3), as exact identities
+    # rather than tolerances:
+    #   E_coarse(k) == E_fine(k) for k <= 31 : 3.6e-16
+    #   coarsen(coarsen(x,128),64) vs direct : 5.5e-16
+    #   mean preserved                       : 6.2e-18
+    # What 6x keeps, and this is the size of the closure the model must invent:
+    #   kinetic energy 0.9816   |   dissipation 0.5044
+    # All 200 coarsened snapshots total 0.63 GB and are held resident in RAM.
+
+  # `crop_size` is the WHOLE coarse box — nothing is cropped. The key keeps its name so
+  # `TrainConfig.grid_size` and the crop/patch divisibility check work unchanged.
+  crop_size: [64, 64, 64]
+
+  # ---- splits: byte-identical to mae-3d-base, so future cross-experiment comparison is
+  # legitimate rather than approximate. Split unit is the FILE; all 10 of its snapshots
+  # move together. Two files belong to no split, widening the boundaries.
+  split_unit: file
+  splits:
+    train: [25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85] # 13 files
+    gap_after_train: [90]
+    val: [95, 100, 105] # 3 files
+    gap_after_val: [110]
+    test: [115, 120] # 2 files
