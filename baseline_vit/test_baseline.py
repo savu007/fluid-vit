@@ -113,5 +113,76 @@ class DatasetTests(unittest.TestCase):
         self.assertAlmostEqual(metrics["mse_skill_vs_persistence"], 0, places=4)
 
 
+    def test_touching_files_within_train_are_allowed_without_cross_file_pairs(self):
+        self.cfg["data"].update(train=[1, 2], gaps=[4])
+        self.manifest["time_coordinates"]["2"] = [12, 13, 14]
+        self.write_manifest()
+        index = CacheIndex(self.cfg)
+        dataset = PairDataset(index, "train")
+        self.assertEqual(dataset.pairs, [(1, 0), (1, 1), (2, 0), (2, 1)])
+        self.assertEqual(index.dt_reference, 1)
+        self.assertTrue(all(dataset[i][2].item() == 1 for i in range(len(dataset))))
+
+    def test_touching_train_validation_boundary_is_rejected(self):
+        self.manifest["time_coordinates"]["3"] = [12, 13, 14]
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "chronological train before val"):
+            CacheIndex(self.cfg)
+
+    def test_touching_validation_test_boundary_is_rejected(self):
+        self.manifest["time_coordinates"]["5"] = [32, 33, 34]
+        self.write_manifest()
+        with self.assertRaisesRegex(ValueError, "chronological val before test"):
+            CacheIndex(self.cfg)
+
+    def test_plot_contains_physical_velocity_and_correct_slices(self):
+        from unittest.mock import patch
+        from matplotlib.figure import Figure
+        from .visualize import plot_prediction
+
+        # Spatial variation exposes axis-order mistakes; the zero head predicts x.
+        field = np.arange(3 * 8 ** 3, dtype=np.float32).reshape(3, 8, 8, 8)
+        np.save(self.root / "fluid_3.npy", np.stack([field, field + 1, field + 2]))
+        index = CacheIndex(self.cfg)
+        dataset = PairDataset(index, "val")
+        model = BaselineViT(**self.cfg["model"])
+        stats = training_statistics(index)
+        savefig = Figure.savefig
+        figures = []
+
+        def capture(figure, *args, **kwargs):
+            figures.append(figure)
+            return savefig(figure, *args, **kwargs)
+
+        for axis_number, axis in enumerate(("x", "y", "z")):
+            with self.subTest(axis=axis), patch.object(Figure, "savefig", capture):
+                output = self.root / f"{axis}.png"
+                plot_prediction(model, dataset, stats, torch.device("cpu"), output,
+                                axis=axis, slice_index=2)
+                self.assertEqual(output.read_bytes()[:8], b"\x89PNG\r\n\x1a\n")
+                panels = [p for p in figures[-1].axes if p.images]
+                self.assertEqual(len(panels), 9)
+                plane = np.take(field, 2, axis=axis_number + 1)
+                for channel in range(3):
+                    truth, predicted, error = panels[3 * channel:3 * channel + 3]
+                    np.testing.assert_allclose(truth.images[0].get_array(), plane[channel].T + 1)
+                    np.testing.assert_allclose(predicted.images[0].get_array(),
+                                               plane[channel].T, atol=2e-4)
+                    np.testing.assert_allclose(error.images[0].get_array(), -1, atol=2e-4)
+                    self.assertEqual(truth.images[0].get_clim(), predicted.images[0].get_clim())
+
+    def test_plot_rejects_invalid_selection(self):
+        from .visualize import plot_prediction
+
+        index = CacheIndex(self.cfg)
+        dataset = PairDataset(index, "val")
+        model = BaselineViT(**self.cfg["model"])
+        for options in ({"sample_index": -1}, {"sample_index": len(dataset)},
+                        {"slice_index": 8}, {"slice_index": -1}, {"axis": "time"}):
+            with self.subTest(options=options), self.assertRaises(ValueError):
+                plot_prediction(model, dataset, training_statistics(index),
+                                torch.device("cpu"), self.root / "invalid.png", **options)
+
+
 if __name__ == "__main__":
     unittest.main()

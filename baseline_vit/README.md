@@ -30,6 +30,7 @@ another averaging operation.
 - `engine.py`: normalization and one-step metrics.
 - `train.py`: optimizer, validation selection, and checkpoint writing.
 - `evaluate.py`: explicit validation/test evaluation using saved training statistics.
+- `visualize.py`: optional PNG comparisons of predicted and true velocity slices.
 - `test_baseline.py`: small synthetic checks; does not access the production dataset.
 
 The default cache is `/global/homes/s/savu/data/hit-coarse-64`, matching the
@@ -44,10 +45,13 @@ current coarsening configuration. It must contain `.npy` arrays and the complete
 | Gap | 156 | Excluded |
 | Test | 157–160 | 36 |
 
-Membership is explicit and disjoint. Timestamps establish ordering; files cannot
-overlap in physical time, time units/calendars must agree, and all within-file
+Membership is explicit and disjoint. Timestamps establish ordering; neighboring files may share an endpoint timestamp,
+but their time-range interiors cannot overlap. Train/validation/test time ranges
+must remain strictly separated. Time units/calendars must agree, and all within-file
 steps must match the median **training** interval within configured tolerances.
-No examples bridge file boundaries, even if files are contiguous. Gap files are
+No examples bridge file boundaries, even if files are contiguous. Shared endpoint
+snapshots remain in their respective files and are counted once per file when
+computing training statistics. Gap files are
 checked but never used for training, normalization, or evaluation. A one-file gap
 does not establish statistical independence; assess physical temporal coverage.
 If timestamps reset per file or files represent different trajectories, resolve
@@ -125,13 +129,38 @@ part of this task.
 
 ## Synthetic tests
 
-On your local computer in an environment with PyTorch, NumPy, and PyYAML:
+In an environment with PyTorch, NumPy, PyYAML, and Matplotlib:
 
 ```bash
 python -m unittest baseline_vit.test_baseline -v
 ```
 
 These test patch ordering, persistence initialization, gradient flow, temporal
-pairing, train-only statistics, split/time checks, and persistence metrics using
-small CPU tensors and temporary files. They have been provided for you to execute;
-they were not run during implementation.
+pairing, train-only statistics, shared file endpoints, strict split separation,
+persistence metrics, and physical-velocity plots along all three slice axes,
+using small CPU tensors and temporary files.
+
+## Visualize a forecast
+
+Add `--plot` to checkpoint evaluation to save a PNG you can open in VS Code
+or any image viewer. Matplotlib is required only for this option; rendering works
+without a display server. The plot shows target, ViT prediction, and signed error
+for each velocity component in physical values, with shared target/prediction
+color limits per component.
+
+From a GPU allocation:
+
+```bash
+srun --ntasks=1 --gpus=1 python -u -m baseline_vit.evaluate \
+  --checkpoint baseline_vit/runs/baseline-01/best.pt --split val \
+  --plot baseline_vit/runs/baseline-01/velocity-val.png \
+  --sample-index 0 --slice-axis z --slice-index 32
+```
+
+The sample index selects a temporal pair within the chosen split (default 0).
+The slice axis can be x, y, or z; the default is the central z plane.
+Axes show voxel indices because the cache does not store physical spatial
+coordinates. The image title records the source file and input/target times.
+Evaluation still reports metrics over the entire selected split. Use validation
+for development; reserve test evaluation for finalized choices. A trained
+checkpoint is required; no example trained prediction is bundled.

@@ -48,10 +48,12 @@ class CacheIndex:
             self.groups[split] = sorted(data[split], key=lambda i: self.times[i][0])
         if any(attrs != time_attrs[0] for attrs in time_attrs):
             raise ValueError("Time units/calendars must match across selected files")
-        # This baseline assumes one chronological trajectory. Reject ambiguous overlap.
+        # Consecutive files may repeat the boundary timestamp. Pairs stay within
+        # files, so touching endpoints introduce no zero-duration example.
+        # Split boundaries below remain strictly separated to prevent leakage.
         chronological = sorted(self.times, key=lambda i: self.times[i][0])
         for left, right in zip(chronological, chronological[1:]):
-            if self.times[left][-1] >= self.times[right][0]:
+            if self.times[left][-1] > self.times[right][0]:
                 raise ValueError(f"Files {left} and {right} overlap in time; resolve trajectory membership first")
         for left, right in (("train", "val"), ("val", "test")):
             if (max(self.times[i][-1] for i in self.groups[left])
