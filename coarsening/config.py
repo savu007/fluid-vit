@@ -1,11 +1,9 @@
-"""Typed parsing of the `data:` block of an experiment config.
+"""Configuration schema, YAML loading, and validation for spectral coarsening.
 
-This module owns nothing about how bytes are read off disk — see
-`mae.data.dataset` and `mae.data.normalization` for that. It exists so that
-every other module reads config values through one validated path instead of
-indexing raw dicts, and so a malformed config fails at load time with a
-message naming the missing key, not three layers deep inside a `KeyError`
-during training.
+Edit config.yaml to change dataset paths or experiment settings. This module
+converts those values into typed objects and checks the operator's requirements.
+Both top-level settings and a wrapping `data:` mapping are supported. Relative
+paths retain the original convention: resolve against the working directory.
 """
 
 from __future__ import annotations
@@ -13,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
+import re
 
 import yaml
 
@@ -20,41 +19,11 @@ Split = Literal["train", "val", "test"]
 
 
 @dataclass(frozen=True)
-class NormalizationConfig:
-    """Per-channel normalization settings, computed on the train split only.
-
-    Attributes:
-        mode: normalization strategy. Only "per_channel_global" is implemented
-            by `mae.data.normalization`.
-        stats_path: where frozen mean/std are read from (by the DataModule)
-            and written to (by the explicit stats-generation entry point).
-        recompute: must be `false` in every experiment config. `true` is
-            rejected at load time — statistics are frozen and regenerated
-            only via `python -m mae.data.normalization`, never implicitly by
-            a training run. See CLAUDE.md §Required properties.
-    """
-
-    mode: str
-    stats_path: Path
-    recompute: bool
-
-
-@dataclass(frozen=True)
-class LoaderConfig:
-    """`torch.utils.data.DataLoader` knobs, sourced from `data.loader`."""
-
-    batch_size: int
-    num_workers: int
-    pin_memory: bool
-    persistent_workers: bool
-
-
-@dataclass(frozen=True)
 class SplitsConfig:
     """File-id membership per split, plus the two gap files.
 
     Splitting is by FILE: every snapshot in a file moves with it, so
-    file-level disjointness (checked in `DataConfig.__post_init__`) implies
+    file-level disjointness (checked when loading configuration) implies
     snapshot-level disjointness too. `gap_after_train` and `gap_after_val`
     file ids belong to no split at all — they exist only to widen the
     train/val and val/test boundaries.
@@ -104,139 +73,100 @@ def assert_splits_disjoint(splits: SplitsConfig) -> None:
 
 
 @dataclass(frozen=True)
-class DataConfig:
-    """Parsed `data:` block of an experiment config, plus the top-level seed.
+class CoarsenSettings:
+    enabled: bool
+    method: str
+    target_grid: tuple[int, int, int]
+    cache_dir: Path
 
-    Axis order on disk (asserted at open in `mae.data.dataset`, never
-    assumed): `var_dims[0]` is the per-snapshot ("time") axis; `var_dims[1:]`
-    are the three spatial axes, in the same order as `grid_size` and
-    `crop_size`. For `mae-3d-base`, `var_dims = [time, x, y, z]`, so a raw
-    on-disk variable is `(time, x, y, z)` and a returned crop is
-    `(C, X, Y, Z)` — channel first (in `channels` order), then the spatial
-    axes in that same source order. There is no axis reversal anywhere in
-    this data path.
-    """
 
+@dataclass(frozen=True)
+class CoarsenConfig:
     root: Path
     file_glob: str
     channels: tuple[str, ...]
     var_dims: tuple[str, ...]
+    source_grid: tuple[int, int, int]
     snapshots_per_file: int
-    total_snapshots: int
-    grid_size: tuple[int, int, int]
-    domain_length: float
-    grid_centering: str
-    periodic: bool
-    crop_size: tuple[int, int, int]
-    crops_per_snapshot: int
     splits: SplitsConfig
-    normalization: NormalizationConfig
-    loader: LoaderConfig
-    seed: int
-
-    def __post_init__(self) -> None:
-        if len(self.var_dims) != 4:
-            raise ValueError(
-                f"data.var_dims must have exactly 4 entries, got {self.var_dims}"
-            )
-        if len(self.grid_size) != 3:
-            raise ValueError(
-                f"data.grid_size must have exactly 3 entries, got {self.grid_size}"
-            )
-        if len(self.crop_size) != 3:
-            raise ValueError(
-                f"data.crop_size must have exactly 3 entries, got {self.crop_size}"
-            )
-        if any(c > g for c, g in zip(self.crop_size, self.grid_size, strict=True)):
-            raise ValueError(
-                f"data.crop_size {self.crop_size} exceeds data.grid_size {self.grid_size}"
-            )
-        if not self.channels:
-            raise ValueError("data.channels must not be empty")
-        if self.normalization.recompute:
-            raise ValueError(
-                "data.normalization.recompute=true is not supported here. Statistics are frozen; "
-                "regenerate explicitly with `python -m mae.data.normalization --config <path> --force`."
-            )
-        assert_splits_disjoint(self.splits)
+    coarsen: CoarsenSettings
+    file_id_pattern: str = r"fluid_(\d+)"
 
     @property
-    def time_dim(self) -> str:
-        """Name of the per-snapshot axis (`var_dims[0]`)."""
+    def time_dim(self):
         return self.var_dims[0]
 
     @property
-    def spatial_dims(self) -> tuple[str, str, str]:
-        """Names of the three spatial axes (`var_dims[1:]`), in `grid_size` order."""
-        return (self.var_dims[1], self.var_dims[2], self.var_dims[3])
+    def spatial_dims(self):
+        return self.var_dims[1:]
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> DataConfig:
-        """Parse `data:` and top-level `seed` out of an experiment yml.
+    def from_yaml(cls, path):
+        with Path(path).open() as stream:
+            raw = yaml.safe_load(stream)
+        if not isinstance(raw, dict):
+            raise ValueError("Configuration must be a YAML mapping")
+        data = raw.get("data", raw)
+        if not isinstance(data, dict):
+            raise ValueError("data must be a mapping")
+        required = ("root", "file_glob", "channels", "var_dims", "source_grid",
+                    "snapshots_per_file", "splits", "coarsen", "periodic")
+        missing = [key for key in required if key not in data]
+        if missing:
+            raise ValueError(f"Missing coarsening configuration keys: {', '.join(missing)}")
+        if data["periodic"] is not True:
+            raise ValueError("Spectral coarsening requires periodic: true")
+        block = data["coarsen"]
+        if not isinstance(block, dict):
+            raise ValueError("coarsen must be a mapping")
+        for key in ("target_grid", "cache_dir", "method"):
+            if key not in block:
+                raise ValueError(f"Missing coarsen.{key}")
+        if block["method"] != "spectral_sharp":
+            raise ValueError("Only coarsen.method: spectral_sharp is supported")
+        enabled = block.get("enabled", True)
+        if type(enabled) is not bool:
+            raise ValueError("coarsen.enabled must be a boolean")
 
-        Raises `FileNotFoundError` if `path` does not exist, `ValueError` if
-        it does not use the `.yml` extension, and `KeyError` naming the exact
-        missing key (e.g. `'data.normalization.stats_path'`) if a required
-        field is absent. Never silently defaults a physical parameter.
-        """
-        path = Path(path)
-        if path.suffix != ".yml":
-            raise ValueError(f"config must use the .yml extension, got: {path}")
-        if not path.exists():
-            raise FileNotFoundError(f"config not found: {path}")
-        with path.open() as f:
-            raw = yaml.safe_load(f)
+        def grid(value, name):
+            if (not isinstance(value, (list, tuple)) or len(value) != 3
+                    or any(type(n) is not int or n < 4 for n in value)
+                    or len(set(value)) != 1):
+                raise ValueError(f"{name} must contain three equal integers >= 4")
+            return tuple(value)
 
-        def get(d: dict, key: str, ctx: str):
-            if key not in d:
-                full = f"{ctx}.{key}" if ctx else key
-                raise KeyError(f"{path}: missing required key '{full}'")
-            return d[key]
-
-        seed = get(raw, "seed", "")
-        d = get(raw, "data", "")
-
-        splits_raw = get(d, "splits", "data")
-        splits = SplitsConfig(
-            train=tuple(get(splits_raw, "train", "data.splits")),
-            val=tuple(get(splits_raw, "val", "data.splits")),
-            test=tuple(get(splits_raw, "test", "data.splits")),
-            gap_after_train=tuple(splits_raw.get("gap_after_train", ())),
-            gap_after_val=tuple(splits_raw.get("gap_after_val", ())),
-        )
-
-        norm_raw = get(d, "normalization", "data")
-        normalization = NormalizationConfig(
-            mode=get(norm_raw, "mode", "data.normalization"),
-            stats_path=Path(get(norm_raw, "stats_path", "data.normalization")),
-            recompute=bool(norm_raw.get("recompute", False)),
-        )
-
-        loader_raw = get(d, "loader", "data")
-        loader = LoaderConfig(
-            batch_size=int(get(loader_raw, "batch_size", "data.loader")),
-            num_workers=int(get(loader_raw, "num_workers", "data.loader")),
-            pin_memory=bool(get(loader_raw, "pin_memory", "data.loader")),
-            persistent_workers=bool(
-                get(loader_raw, "persistent_workers", "data.loader")
-            ),
-        )
-
-        return cls(
-            root=Path(get(d, "root", "data")),
-            file_glob=get(d, "file_glob", "data"),
-            channels=tuple(get(d, "channels", "data")),
-            var_dims=tuple(get(d, "var_dims", "data")),
-            snapshots_per_file=int(get(d, "snapshots_per_file", "data")),
-            total_snapshots=int(get(d, "total_snapshots", "data")),
-            grid_size=tuple(int(v) for v in get(d, "grid_size", "data")),
-            domain_length=float(get(d, "domain_length", "data")),
-            grid_centering=get(d, "grid_centering", "data"),
-            periodic=bool(get(d, "periodic", "data")),
-            crop_size=tuple(int(v) for v in get(d, "crop_size", "data")),
-            crops_per_snapshot=int(get(d, "crops_per_snapshot", "data")),
-            splits=splits,
-            normalization=normalization,
-            loader=loader,
-            seed=int(seed),
-        )
+        source = grid(data["source_grid"], "source_grid")
+        target = grid(block["target_grid"], "coarsen.target_grid")
+        if target[0] % 2 or target[0] > source[0]:
+            raise ValueError("Target grid must be even and no larger than the source")
+        channels, dims = data["channels"], data["var_dims"]
+        for values, name in ((channels, "channels"), (dims, "var_dims")):
+            if (not isinstance(values, list) or not values
+                    or any(not isinstance(v, str) or not v for v in values)
+                    or len(set(values)) != len(values)):
+                raise ValueError(f"{name} must be a list of unique nonempty names")
+        if len(dims) != 4:
+            raise ValueError("var_dims must name time followed by three spatial axes")
+        count = data["snapshots_per_file"]
+        if type(count) is not int or count < 1:
+            raise ValueError("snapshots_per_file must be a positive integer")
+        groups = data["splits"]
+        if not isinstance(groups, dict):
+            raise ValueError("splits must be a mapping")
+        names = ("train", "val", "test", "gap_after_train", "gap_after_val")
+        if set(groups) - set(names):
+            raise ValueError("Unknown split names in configuration")
+        for name, ids in groups.items():
+            if not isinstance(ids, list) or any(type(i) is not int for i in ids):
+                raise ValueError(f"splits.{name} must be a list of integer file IDs")
+        splits = SplitsConfig(**{name: tuple(groups.get(name, ())) for name in names})
+        assert_splits_disjoint(splits)
+        if not any(splits.all_groups().values()):
+            raise ValueError("At least one file ID must be declared in splits")
+        pattern = data.get("file_id_pattern", r"fluid_(\d+)")
+        if re.compile(pattern).groups != 1:
+            raise ValueError("file_id_pattern must have exactly one capture group for the ID")
+        return cls(Path(data["root"]), data["file_glob"], tuple(channels), tuple(dims),
+                   source, count, splits,
+                   CoarsenSettings(enabled, block["method"], target,
+                                   Path(block["cache_dir"])), pattern)

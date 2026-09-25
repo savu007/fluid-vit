@@ -1,23 +1,8 @@
-"""One-time spectral coarsening pass: 384^3 -> `data.coarsen.target_grid` (64^3).
+"""Standalone NetCDF spectral coarsening.
 
-    PYTHONPATH=src conda run -n mae --no-capture-output --live-stream \\
-        python -m mae.data.coarsen --config configs/march-3d-c64-2step-p4.yml
-
-Reads every snapshot declared anywhere in `data.splits` (train, both gaps, val,
-test — the full 20 files / 200 snapshots, since the cache is shared across
-splits and across the p2/p4 arms) and writes one `fluid_<id>.npy` per file,
-shape `(snapshots_per_file, C, *target_grid)` float32, plus a `manifest.json`
-recording the source file ids, each file's `time` coordinate, the coarsen
-method/target grid, and the operator's verification residuals (computed once,
-on the first snapshot processed — see `_verification_residuals`). Skips the
-whole pass if the cache already exists and its manifest matches the config
-(logged, not silent).
-
-`spectral_coarsen` below is the validated operator from the experiment spec —
-E_coarse(k) == E_fine(k) for k <= 31 to ~3.6e-16, idempotent under nesting to
-~5.5e-16, mean preserved to ~6.2e-18 on the real dataset. It is reproduced
-here EXACTLY as specified and must not be "improved": the Nyquist-zeroing and
-the `Nc^3 / Nf^3` normalization are both easy to get subtly, silently wrong.
+Run: python -m coarsening.coarsen --config coarsening/config.yaml
+Stores float32 arrays (time, channel, x, y, z) and a metadata manifest.
+The configuration must describe a uniform periodic cubic grid.
 """
 
 from __future__ import annotations
@@ -33,9 +18,12 @@ import xarray as xr
 from jaxtyping import Float
 from torch import Tensor
 
-from mae.data.dataset import assert_schema, discover_files, log_raw_file_stat_checksum
-from mae.data.spectral import energy_spectrum
-from mae.data.trajectory_config import TrajectoryDataConfig
+if __package__:
+    from .config import CoarsenConfig
+    from .standalone import assert_schema, discover_files, source_signature
+else:
+    from config import CoarsenConfig
+    from standalone import assert_schema, discover_files, source_signature
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +66,7 @@ def load_manifest(cache_dir: Path) -> dict | None:
         return json.load(f)
 
 
-def _all_declared_file_ids(config: TrajectoryDataConfig) -> tuple[int, ...]:
+def _all_declared_file_ids(config: CoarsenConfig) -> tuple[int, ...]:
     ids: set[int] = set()
     for group_ids in config.splits.all_groups().values():
         ids.update(group_ids)
@@ -86,11 +74,14 @@ def _all_declared_file_ids(config: TrajectoryDataConfig) -> tuple[int, ...]:
 
 
 def _manifest_matches(
-    manifest: dict, config: TrajectoryDataConfig, file_ids: tuple[int, ...]
+    manifest: dict, config: CoarsenConfig, file_ids: tuple[int, ...]
 ) -> bool:
     """Whether an existing manifest was produced by this exact config's coarsen block."""
     return (
-        manifest.get("file_ids") == list(file_ids)
+        manifest.get("format_version") == 1
+        and manifest.get("var_dims") == list(config.var_dims)
+        and manifest.get("snapshots_per_file") == config.snapshots_per_file
+        and manifest.get("file_ids") == list(file_ids)
         and manifest.get("file_glob") == config.file_glob
         and manifest.get("source_grid") == list(config.source_grid)
         and manifest.get("target_grid") == list(config.coarsen.target_grid)
@@ -104,21 +95,12 @@ def _cache_complete(cache_dir: Path, file_ids: tuple[int, ...]) -> bool:
 
 
 def _verification_residuals(x_fine64: Float[Tensor, "C Nf Nf Nf"], nc: int) -> dict:
-    """The three exact identities from the spec, computed on ONE fp64 snapshot.
+    """Measure mean preservation and nesting on one float64 snapshot.
 
-    Never sees the float32-downcast cache — every quantity here is derived
-    straight from `x_fine64` in float64, matching CLAUDE.md §Precision
-    ("physics diagnostics reported from reduced-precision outputs are invalid").
+    Spectrum verification is unavailable without the original spectrum helper.
+    Residuals describe the operator before the float32 storage conversion.
     """
     coarse64 = spectral_coarsen(x_fine64, nc)
-
-    k_max = nc // 2 - 1
-    e_fine = energy_spectrum(x_fine64)
-    e_coarse = energy_spectrum(coarse64)
-    denom = e_fine[: k_max + 1].clamp_min(torch.finfo(torch.float64).tiny)
-    energy_max_rel_err = float(
-        ((e_coarse[: k_max + 1] - e_fine[: k_max + 1]).abs() / denom).max()
-    )
 
     nf = x_fine64.shape[-1]
     mid = nc * 2
@@ -130,11 +112,12 @@ def _verification_residuals(x_fine64: Float[Tensor, "C Nf Nf Nf"], nc: int) -> d
             None  # not checkable: no room for an intermediate grid
         )
 
-    mean_abs_diff = float((x_fine64.mean() - coarse64.mean()).abs())
+    mean_abs_diff = float((x_fine64.mean(dim=(-3, -2, -1))
+                           - coarse64.mean(dim=(-3, -2, -1))).abs().max())
 
     return {
-        "k_max_checked": k_max,
-        "energy_spectrum_max_rel_err": energy_max_rel_err,
+        "energy_spectrum_checked": False,
+        "energy_spectrum_unavailable_reason": "Original spectrum helper not provided",
         "idempotency_intermediate_grid": mid if mid < nf else None,
         "idempotency_max_abs_err": idempotency_max_abs_err,
         "mean_abs_diff": mean_abs_diff,
@@ -143,7 +126,7 @@ def _verification_residuals(x_fine64: Float[Tensor, "C Nf Nf Nf"], nc: int) -> d
 
 
 def run_coarsen_pass(
-    config: TrajectoryDataConfig,
+    config: CoarsenConfig,
     *,
     device: torch.device | None = None,
     force: bool = False,
@@ -157,11 +140,17 @@ def run_coarsen_pass(
     cache_dir = Path(config.coarsen.cache_dir)
     file_ids = _all_declared_file_ids(config)
 
+    file_paths = discover_files(config.root, config.file_glob, config.file_id_pattern)
+    missing = [i for i in file_ids if i not in file_paths]
+    if missing:
+        raise RuntimeError(f"Declared file IDs not found under {config.root}: {missing}")
+    signature = source_signature([file_paths[i] for i in file_ids])
     existing = load_manifest(cache_dir)
     if (
         not force
         and existing is not None
         and _manifest_matches(existing, config, file_ids)
+        and existing.get("source_signature") == signature
         and _cache_complete(cache_dir, file_ids)
     ):
         logger.info(
@@ -177,14 +166,6 @@ def run_coarsen_pass(
             f"{cache_dir} — nothing to run and nothing to read"
         )
 
-    file_paths = discover_files(config.root, config.file_glob)
-    missing = [i for i in file_ids if i not in file_paths]
-    if missing:
-        raise RuntimeError(
-            f"declared file ids not found under {config.root}: {missing}"
-        )
-    log_raw_file_stat_checksum([file_paths[i] for i in file_ids])
-
     if device is None:
         device = (
             torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -194,15 +175,22 @@ def run_coarsen_pass(
     )
 
     cache_dir.mkdir(parents=True, exist_ok=True)
+    # Invalidate before replacing any arrays so an interrupted pass is never reused.
+    _manifest_path(cache_dir).unlink(missing_ok=True)
     nc = config.coarsen.target_grid[0]
+    time_attributes: dict = {}
     time_coordinates: dict[str, list[float]] = {}
     residuals: dict | None = None
 
     for file_id in file_ids:
         path = file_paths[file_id]
-        ds = xr.open_dataset(path)
+        ds = xr.open_dataset(path, decode_times=False)
         try:
             assert_schema(ds, path, config)
+            time_attributes[str(file_id)] = {
+                key: str(ds[config.time_dim].attrs[key])
+                for key in ("units", "calendar") if key in ds[config.time_dim].attrs
+            }
             time_coordinates[str(file_id)] = [
                 float(v) for v in np.asarray(ds[config.time_dim].values).reshape(-1)
             ]
@@ -211,20 +199,25 @@ def run_coarsen_pass(
             for t in range(config.snapshots_per_file):
                 raw = np.stack(
                     [
-                        ds[ch].isel({config.time_dim: t}).values
+                        ds[ch].isel({config.time_dim: t}).transpose(*config.spatial_dims).values
                         for ch in config.channels
                     ],
                     axis=0,
-                ).astype(np.float32)
+                ).astype(np.float64)
                 x64 = torch.from_numpy(raw).to(device=device, dtype=torch.float64)
 
+                if not bool(torch.isfinite(x64).all()):
+                    raise ValueError(f"{path}: nonfinite input at time index {t}")
                 if residuals is None:
                     residuals = _verification_residuals(x64, nc)
                     residuals["computed_on_file_id"] = file_id
                     residuals["computed_on_time_index"] = t
 
                 xc64 = spectral_coarsen(x64, nc)
-                coarse_snapshots.append(xc64.to(torch.float32).cpu().numpy())
+                stored = xc64.to(torch.float32)
+                if not bool(torch.isfinite(stored).all()):
+                    raise ValueError(f"{path}: nonfinite output at time index {t}")
+                coarse_snapshots.append(stored.cpu().numpy())
 
             arr = np.stack(coarse_snapshots, axis=0)  # (snapshots_per_file, C, *target)
             np.save(cache_path(cache_dir, file_id), arr)
@@ -233,7 +226,12 @@ def run_coarsen_pass(
             ds.close()
 
     manifest = {
-        "source_root": str(config.root),
+        "format_version": 1,
+        "source_signature": signature,
+        "var_dims": list(config.var_dims),
+        "snapshots_per_file": config.snapshots_per_file,
+        "time_attributes": time_attributes,
+        "source_root": str(config.root.resolve()),
         "file_glob": config.file_glob,
         "file_ids": list(file_ids),
         "time_coordinates": time_coordinates,
@@ -262,7 +260,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     args = parser.parse_args(argv)
 
-    config = TrajectoryDataConfig.from_yaml(args.config)
+    config = CoarsenConfig.from_yaml(args.config)
     run_coarsen_pass(config, force=args.force)
 
 

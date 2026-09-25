@@ -1,0 +1,5 @@
+Started: 2026-09-22T18:14:26-07:00
+Job ID: 58754104
+Python: /global/common/software/nersc9/pytorch/2.13.0/bin/python
+GPU: NVIDIA A100-SXM4-40GB
+Finished: 2026-09-22T18:20:47-07:00
