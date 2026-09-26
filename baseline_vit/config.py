@@ -12,12 +12,15 @@ def load_config(path):
         cfg = yaml.safe_load(stream)
     if not isinstance(cfg, dict):
         raise ValueError("Configuration must be a mapping")
+    if isinstance(cfg.get("training"), dict):
+        cfg["training"].setdefault("objective", "single_step")
+        cfg["training"].setdefault("horizon", 1)
     required = {
         "data": {"cache_dir", "channels", "train", "val", "test", "gaps", "dt_rtol", "dt_atol"},
         "model": {"grid_size", "in_channels", "patch_size", "embed_dim", "depth",
                   "num_heads", "mlp_ratio", "dropout"},
         "training": {"output_dir", "device", "epochs", "batch_size", "num_workers",
-                     "learning_rate", "weight_decay", "grad_clip", "max_train_pairs"},
+                     "learning_rate", "weight_decay", "grad_clip", "max_train_pairs", "objective", "horizon"},
     }
     if set(cfg) != {"seed", *required}:
         raise ValueError("Top-level keys must be seed, data, model, training")
@@ -70,6 +73,8 @@ def load_config(path):
         raise ValueError("max_train_pairs must be null or a positive integer")
     if training["device"] not in ("cpu", "cuda"):
         raise ValueError("training.device must be cpu or cuda")
+    from forecasting.config import validate_objective
+    validate_objective(training)
     for mapping, key in ((data, "cache_dir"), (training, "output_dir")):
         if not isinstance(mapping[key], str) or not mapping[key]:
             raise ValueError(f"{key} must be a nonempty path")

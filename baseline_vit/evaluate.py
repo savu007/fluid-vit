@@ -11,7 +11,7 @@ from .engine import evaluate, select_device
 from .model import BaselineViT
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--split", choices=("val", "test"), default="test")
@@ -20,7 +20,12 @@ def main():
     parser.add_argument("--sample-index", type=int, default=0, help="Pair index within the selected split")
     parser.add_argument("--slice-axis", choices=("x", "y", "z"), default="z")
     parser.add_argument("--slice-index", type=int, help="Voxel index along slice-axis (default: middle)")
-    args = parser.parse_args()
+    parser.add_argument("--horizon", type=int, help="Report a recursive forecast over this many steps")
+    args = parser.parse_args(argv)
+    if args.horizon is not None:
+        from forecasting.evaluate import evaluate_checkpoint
+        print(json.dumps(evaluate_checkpoint(args, "baseline_vit"), indent=2, allow_nan=False))
+        return
     device = select_device(args.device)
     saved = torch.load(args.checkpoint, map_location="cpu", weights_only=True)
     cfg = saved["config"]

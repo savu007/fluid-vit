@@ -1,0 +1,74 @@
+seed: 42
+data:
+  cache_dir: /global/homes/s/savu/data/hit-coarse-64
+  channels:
+  - u
+  - v
+  - w
+  train:
+  - 131
+  - 132
+  - 133
+  - 134
+  - 135
+  - 136
+  - 137
+  - 138
+  - 139
+  - 140
+  - 141
+  - 142
+  - 143
+  - 144
+  - 145
+  - 146
+  - 147
+  - 148
+  - 149
+  - 150
+  val:
+  - 152
+  - 153
+  - 154
+  - 155
+  test:
+  - 157
+  - 158
+  - 159
+  - 160
+  gaps:
+  - 151
+  - 156
+  dt_rtol: 0.0001
+  dt_atol: 1.0e-10
+model:
+  grid_size: 64
+  in_channels: 3
+  patch_size: 4
+  embed_dim: 96
+  depths:
+  - 2
+  - 2
+  - 2
+  - 2
+  - 2
+  num_heads:
+  - 3
+  - 6
+  - 12
+  window_size: 4
+  mlp_ratio: 4
+  dropout: 0.0
+  boundary: periodic
+training:
+  output_dir: /global/u1/s/savu/projects/fluid-vit/runs/rollout-comparison-58888038/yalamanchi_vit
+  device: cuda
+  epochs: 100
+  batch_size: 2
+  num_workers: 0
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  grad_clip: 1.0
+  max_train_pairs: null
+  objective: rollout
+  horizon: 5

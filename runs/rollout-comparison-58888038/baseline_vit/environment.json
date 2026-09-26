@@ -1,0 +1,9 @@
+{
+  "architecture": "baseline_vit_v1",
+  "torch": "2.13.0+cu130",
+  "numpy": "2.4.4",
+  "device": "cuda",
+  "parameters": 3360192,
+  "initialization": null,
+  "cuda_device": "NVIDIA A100-SXM4-40GB"
+}

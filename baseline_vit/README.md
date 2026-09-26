@@ -1,5 +1,8 @@
 # Single-step 3D residual ViT
 
+For a detailed explanation aimed at DNS practitioners, see the
+[architecture guide](docs/architecture-for-dns.md).
+
 Predict one future coarse velocity field from one observed field:
 
 `U(t + dt) = U(t) + ViT(U(t), dt)`
@@ -164,3 +167,11 @@ coordinates. The image title records the source file and input/target times.
 Evaluation still reports metrics over the entire selected split. Use validation
 for development; reserve test evaluation for finalized choices. A trained
 checkpoint is required; no example trained prediction is bundled.
+
+## Matched rollout comparison
+
+Full-gradient rollout training is available through `config-rollout.yaml`.
+Both models share the same temporal dataset, objective, trainer, and evaluation.
+See the [comparison guide](../forecasting/README.md) and submit
+`sbatch rollout-comparison.sbatch` from the repository root to run both.
+The existing one-step configuration and checkpoint evaluation remain supported.
