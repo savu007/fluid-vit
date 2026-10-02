@@ -180,3 +180,8 @@ The existing one-step configuration and checkpoint evaluation remain supported.
 
 `config-matched.yaml` defines the separate 10-block, 4³-patch experiment.
 See the [specification and run guide](../forecasting/docs/matched-specs.md).
+
+## Separate physical-loss experiment
+
+See the [MSE plus energy-spectrum experiment](../forecasting/docs/physical-loss-experiment.md) for the new opt-in
+training files, exact objective, checkpoints, and physical-loss.sbatch job.

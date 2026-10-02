@@ -6,7 +6,7 @@ import math
 import yaml
 
 
-def load_config(path):
+def load_config(path, *, allow_physical_loss=False):
     path = Path(path).resolve()
     with path.open() as stream:
         cfg = yaml.safe_load(stream)
@@ -15,6 +15,13 @@ def load_config(path):
     if isinstance(cfg.get("training"), dict):
         cfg["training"].setdefault("objective", "single_step")
         cfg["training"].setdefault("horizon", 1)
+    physical_loss = None
+    if allow_physical_loss:
+        if not isinstance(cfg, dict) or "loss" not in cfg:
+            raise ValueError("Physical experiment requires an explicit loss section")
+        physical_loss = cfg.pop("loss")
+        from forecasting.physical_loss import validate_loss
+        validate_loss(physical_loss)
     required = {
         "data": {"cache_dir", "channels", "train", "val", "test", "gaps", "dt_rtol", "dt_atol"},
         "model": {"grid_size", "in_channels", "patch_size", "embed_dim", "depth",
@@ -80,4 +87,6 @@ def load_config(path):
             raise ValueError(f"{key} must be a nonempty path")
         value = Path(mapping[key]).expanduser()
         mapping[key] = str(value if value.is_absolute() else (path.parent / value).resolve())
+    if physical_loss is not None:
+        cfg["loss"] = physical_loss
     return cfg

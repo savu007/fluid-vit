@@ -1,0 +1,93 @@
+{
+  "yalamanchi_vit": {
+    "val": {
+      "architecture": "yalamanchi_swinv2_3d_v1",
+      "checkpoint_epoch": 100,
+      "split": "val",
+      "one_step": {
+        "normalized_mse": 0.02040017086703044,
+        "physical_mse": 0.03514846221130669,
+        "relative_l2": 0.1434524122507465,
+        "persistence_mse": 0.09139642279373078,
+        "persistence_relative_l2": 0.2313232525813422,
+        "mse_skill_vs_persistence": 0.6154284693326351,
+        "predicted_kinetic_energy": 2.521926900144489,
+        "target_kinetic_energy": 2.5620162305335676,
+        "samples": 360
+      },
+      "rollout": {
+        "horizon": 5,
+        "samples": 200,
+        "horizons": [
+          {
+            "lead_steps": 1,
+            "normalized_mse": 0.020408652371249072,
+            "physical_mse": 0.03516345799859976,
+            "physical_mae": 0.13925226862069853,
+            "relative_l2": 0.14348223155832715,
+            "persistence_mse": 0.0914192090988587,
+            "persistence_relative_l2": 0.23135083098853584,
+            "mse_skill_vs_persistence": 0.6153602908489968,
+            "predicted_kinetic_energy": 2.521954033489481,
+            "target_kinetic_energy": 2.562044042888341,
+            "samples": 200
+          },
+          {
+            "lead_steps": 2,
+            "normalized_mse": 0.0419863104820876,
+            "physical_mse": 0.07238603828343504,
+            "physical_mae": 0.20279181298706683,
+            "relative_l2": 0.2058650736901036,
+            "persistence_mse": 0.25946516002206726,
+            "persistence_relative_l2": 0.38975778034959946,
+            "mse_skill_vs_persistence": 0.721018273600669,
+            "predicted_kinetic_energy": 2.499625678268809,
+            "target_kinetic_energy": 2.5620094251174383,
+            "samples": 200
+          },
+          {
+            "lead_steps": 3,
+            "normalized_mse": 0.05354444359163998,
+            "physical_mse": 0.09231424404914017,
+            "physical_mae": 0.23038316408822287,
+            "relative_l2": 0.23248317567407695,
+            "persistence_mse": 0.40775367416430025,
+            "persistence_relative_l2": 0.4886029807325347,
+            "mse_skill_vs_persistence": 0.7736029129882394,
+            "predicted_kinetic_energy": 2.485034488806813,
+            "target_kinetic_energy": 2.5619869778396573,
+            "samples": 200
+          },
+          {
+            "lead_steps": 4,
+            "normalized_mse": 0.062397188105637415,
+            "physical_mse": 0.1075554337083711,
+            "physical_mae": 0.2492439798422591,
+            "relative_l2": 0.2509424609257147,
+            "persistence_mse": 0.5286192327500377,
+            "persistence_relative_l2": 0.5563261249134769,
+            "mse_skill_vs_persistence": 0.796535148468142,
+            "predicted_kinetic_energy": 2.474513111818319,
+            "target_kinetic_energy": 2.5619774894790663,
+            "samples": 200
+          },
+          {
+            "lead_steps": 5,
+            "normalized_mse": 0.07057209277441209,
+            "physical_mse": 0.12162174044952165,
+            "physical_mae": 0.2653128128135834,
+            "relative_l2": 0.2668476454535963,
+            "persistence_mse": 0.6295224902286927,
+            "persistence_relative_l2": 0.6071044179062086,
+            "mse_skill_vs_persistence": 0.806803184417861,
+            "predicted_kinetic_energy": 2.4667574764336537,
+            "target_kinetic_energy": 2.561979927430055,
+            "samples": 200
+          }
+        ],
+        "mean_normalized_mse": 0.049781737465005235
+      },
+      "plot": "/global/u1/s/savu/projects/fluid-vit/runs/matched-comparison-59178955/yalamanchi_vit/velocity-val.png"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "patch_size": 4,
+  "transformer_blocks": 10,
+  "head_dimension": 24,
+  "mlp_ratio": 4,
+  "parameters": {
+    "baseline_vit": 8020272,
+    "yalamanchi_vit": 8313683
+  },
+  "parameter_gap_fraction_of_yalamanchi": 0.035292541223907625,
+  "parameter_gap_limit": 0.05,
+  "compute_matched": false,
+  "architecture_matched": false
+}

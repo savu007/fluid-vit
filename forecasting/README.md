@@ -131,3 +131,8 @@ For a local synthetic check with the PyTorch module loaded:
 PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/fluid-vit-matplotlib \
 python -B -m unittest baseline_vit.test_baseline yalamanchi_vit.test_baseline forecasting.test_comparison.ComparisonTests -v
 ```
+
+## Separate physical-loss experiment
+
+See the [MSE plus energy-spectrum experiment](docs/physical-loss-experiment.md) for the new opt-in
+training files, exact objective, checkpoints, and physical-loss.sbatch job.
