@@ -1,5 +1,8 @@
 # A DNS practitioner's guide to the Yalamanchi-inspired 3D ViT
 
+For the verified current loss, physical-data assumptions, and open design decisions,
+see the shared [loss-design reference](../../forecasting/docs/loss-design-for-dns.md).
+
 **Status: initial implementation available.** Model, trainer, evaluation, tests,
 and a Slurm script are now present. See [current implementation](../README.md)
 and the [running instructions](../README.md). GPU experiments remain pending.
@@ -460,9 +463,9 @@ Add MAE as a supplementary metric with an explicit physical-value definition.
 Do not replace the existing checkpoint-selection metric during the first
 architectural comparison.
 
-For rollout-trained models, choose and record a validation criterion before
-running: proposed criterion is mean normalized MSE across all five horizons,
-even if the training loss uses only the final horizon.
+For rollout-trained models, the implemented checkpoint criterion is mean
+normalized MSE across the configured forecast horizons. The default is five.
+Changing the training loss does not automatically change this selection rule.
 
 ### Rollout evaluation
 

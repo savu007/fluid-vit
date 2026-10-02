@@ -175,3 +175,8 @@ Both models share the same temporal dataset, objective, trainer, and evaluation.
 See the [comparison guide](../forecasting/README.md) and submit
 `sbatch rollout-comparison.sbatch` from the repository root to run both.
 The existing one-step configuration and checkpoint evaluation remain supported.
+
+## Matched-specification experiment
+
+`config-matched.yaml` defines the separate 10-block, 4³-patch experiment.
+See the [specification and run guide](../forecasting/docs/matched-specs.md).

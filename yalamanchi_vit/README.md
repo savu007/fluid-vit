@@ -55,3 +55,8 @@ weights were vendored.
 GPU runtime, memory, and turbulent-flow accuracy remain unmeasured.
 The model has no exact incompressibility constraint. Spectra/divergence diagnostics,
 multi-step plots, mixed precision, and distributed training are not implemented.
+
+## Matched-specification experiment
+
+`config-matched.yaml` defines the separate 10-block, 4³-patch experiment.
+See the [specification and run guide](../forecasting/docs/matched-specs.md).

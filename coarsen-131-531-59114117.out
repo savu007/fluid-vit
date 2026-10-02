@@ -1,0 +1,4 @@
+GPU: NVIDIA A100-SXM4-40GB
+Coarsening 401 files (4010 saved snapshots) into /pscratch/sd/s/savu/fluid-vit/hit-coarse-64-131-531
+Completed 401 files in 4982.5 seconds
+Manifest: /pscratch/sd/s/savu/fluid-vit/hit-coarse-64-131-531/manifest.json

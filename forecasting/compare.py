@@ -27,6 +27,38 @@ def validate_comparison(configs):
             raise ValueError(f"Comparison requires identical model.{key}")
 
 
+def validate_matched_specs(configs):
+    """Match declared capacity controls; preserve architecture-specific choices."""
+    validate_comparison(configs)
+    left, right = [cfg["model"] for cfg in configs]
+    for key in ("patch_size", "mlp_ratio"):
+        if left[key] != right[key]:
+            raise ValueError(f"Matched specs require identical model.{key}")
+    if left["depth"] != sum(right["depths"]):
+        raise ValueError("Matched specs require equal total transformer blocks")
+    head_dim = left["embed_dim"] // left["num_heads"]
+    stage_head_dims = [right["embed_dim"] * 2**i // heads
+                       for i, heads in enumerate(right["num_heads"])]
+    if any(dim != head_dim for dim in stage_head_dims):
+        raise ValueError("Matched specs require equal attention head dimensions")
+    counts = {}
+    for name, cfg in zip(("baseline_vit", "yalamanchi_vit"), configs):
+        # Counting is independent of initialized values. Preserve the caller's RNG.
+        import torch
+        with torch.random.fork_rng(devices=[]):
+            model = components(name)[1](**cfg["model"])
+        counts[name] = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        del model
+    gap = abs(counts["baseline_vit"] - counts["yalamanchi_vit"]) / counts["yalamanchi_vit"]
+    if gap > 0.05:
+        raise ValueError("Matched specs require parameter counts within 5% of Yalamanchi")
+    return {"patch_size": left["patch_size"], "transformer_blocks": left["depth"],
+            "head_dimension": head_dim, "mlp_ratio": left["mlp_ratio"],
+            "parameters": counts, "parameter_gap_fraction_of_yalamanchi": gap,
+            "parameter_gap_limit": 0.05,
+            "compute_matched": False, "architecture_matched": False}
+
+
 def slurm_prefixes():
     """Pin the two independent workers to distinct nodes in this allocation."""
     nodelist = os.environ.get("SLURM_JOB_NODELIST")
@@ -88,11 +120,14 @@ def main(argv=None):
     parser.add_argument("--launcher", choices=("local", "slurm"), default="local",
                         help="local: serial; slurm: concurrent workers on two allocated nodes")
     parser.add_argument("--test", action="store_true", help="Also evaluate held-out test after validation selection")
+    parser.add_argument("--matched-specs", action="store_true",
+                        help="Enforce equal patches/depth/head dimension/MLP ratio and <=5% parameter gap")
     args = parser.parse_args(argv)
     architectures = ("baseline_vit", "yalamanchi_vit")
     configs = [components(name)[0](path) for name, path in
                zip(architectures, (args.baseline_config, args.yalamanchi_config))]
     validate_comparison(configs)
+    specs = validate_matched_specs(configs) if args.matched_specs else None
     for cfg in configs:
         index = CacheIndex(cfg)
         for split in ("train", "val", "test") if args.test else ("train", "val"):
@@ -100,6 +135,8 @@ def main(argv=None):
     prefixes = slurm_prefixes() if args.launcher == "slurm" else [[], []]
     output = args.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    if specs is not None:
+        (output / "matched-specs.json").write_text(json.dumps(specs, indent=2))
     (output / "launch.json").write_text(json.dumps(
         {"launcher": args.launcher, "workers": dict(zip(architectures, prefixes))}, indent=2))
     results, failures = {}, {}

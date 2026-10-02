@@ -1,5 +1,8 @@
 # A DNS practitioner's guide to the baseline 3D velocity ViT
 
+For the verified current loss, physical-data assumptions, and open design decisions,
+see the shared [loss-design reference](../../forecasting/docs/loss-design-for-dns.md).
+
 This guide explains the implementation in this repository as of September 25,
 2026. It assumes familiarity with velocity fields, spectral filtering, time
 integration, and turbulence diagnostics. Machine-learning terms are introduced
@@ -687,7 +690,7 @@ evolution.
 | Time-step control | Fixed-interval experiment; no CFL or local-error controller |
 | Translation and rotation symmetry | Not guaranteed |
 | Uncertainty | One deterministic output; no calibrated uncertainty estimate |
-| Long-horizon evolution | No rollout evaluator or rollout training currently implemented |
+| Long-horizon evolution | Full-gradient rollout training and evaluation are implemented in the shared forecasting package |
 
 Attention alone does not enforce physical laws. Matching total energy does not
 guarantee correct spatial organization or energy transfer across scales.

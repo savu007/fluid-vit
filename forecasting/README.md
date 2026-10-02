@@ -1,5 +1,11 @@
 # Matched rollout comparison
 
+For the new capacity-controlled experiment, see [matched specs](docs/matched-specs.md)
+and `matched-comparison.sbatch`. The original rollout setup below is preserved.
+
+See the [loss-design reference for DNS practitioners](docs/loss-design-for-dns.md)
+for current objective semantics, physical metadata gaps, and candidate diagnostics.
+
 Both architectures use the same dataset, loss, trainer, and evaluation functions
 in this package. The default comparison changes the architecture and keeps the
 data split, seed (42), five-step horizon, batch size (2), epochs (100), AdamW
