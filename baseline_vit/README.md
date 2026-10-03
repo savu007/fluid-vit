@@ -1,5 +1,7 @@
 # Single-step 3D residual ViT
 
+Current experiment: [runtime-targeted comparison](../forecasting/docs/runtime-comparison.md). Use `sbatch jobs/runtime-comparison.sbatch` from the repository root.
+
 For a detailed explanation aimed at DNS practitioners, see the
 [architecture guide](docs/architecture-for-dns.md).
 
@@ -173,15 +175,10 @@ checkpoint is required; no example trained prediction is bundled.
 Full-gradient rollout training is available through `config-rollout.yaml`.
 Both models share the same temporal dataset, objective, trainer, and evaluation.
 See the [comparison guide](../forecasting/README.md) and submit
-`sbatch rollout-comparison.sbatch` from the repository root to run both.
+`sbatch jobs/rollout-comparison.sbatch` from the repository root to run both.
 The existing one-step configuration and checkpoint evaluation remain supported.
 
 ## Matched-specification experiment
 
 `config-matched.yaml` defines the separate 10-block, 4³-patch experiment.
 See the [specification and run guide](../forecasting/docs/matched-specs.md).
-
-## Separate physical-loss experiment
-
-See the [MSE plus energy-spectrum experiment](../forecasting/docs/physical-loss-experiment.md) for the new opt-in
-training files, exact objective, checkpoints, and physical-loss.sbatch job.

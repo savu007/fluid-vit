@@ -1,3 +1,0 @@
-Training baseline_vit; log: /global/u1/s/savu/projects/fluid-vit/runs/rollout-comparison-58888038/baseline_vit.log
-Training yalamanchi_vit; log: /global/u1/s/savu/projects/fluid-vit/runs/rollout-comparison-58888038/yalamanchi_vit.log
-Comparison complete: /global/u1/s/savu/projects/fluid-vit/runs/rollout-comparison-58888038/comparison.csv

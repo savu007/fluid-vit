@@ -160,6 +160,24 @@ class ComparisonTests(unittest.TestCase):
         self.assertEqual(set(json.loads((output / "failures.json").read_text())), {"baseline_vit"})
 
 
+    def test_runtime_configuration_and_retired_loss_rejection(self):
+        from .compare import validate_comparison, validate_matched_specs
+        root = Path(__file__).resolve().parents[1]
+        configs = [baseline_config(root / "baseline_vit/config-runtime.yaml"),
+                   yalamanchi_config(root / "yalamanchi_vit/config-runtime.yaml")]
+        validate_comparison(configs)
+        self.assertEqual(configs[0]["model"]["depth"], 10)
+        self.assertEqual(sum(configs[1]["model"]["depths"]), 10)
+        self.assertEqual(configs[0]["model"]["embed_dim"], 240)
+        self.assertEqual(configs[0]["model"]["num_heads"], 10)
+        self.assertEqual(configs[0]["model"]["patch_size"], 8)
+        with self.assertRaisesRegex(ValueError, "patch_size"):
+            validate_matched_specs(configs)
+        for name, loader in (("baseline_vit", baseline_config),
+                             ("yalamanchi_vit", yalamanchi_config)):
+            with self.assertRaisesRegex(ValueError, "Top-level"):
+                loader(root / "archive/physical_loss" / name / "config-physical.yaml")
+
     def test_matched_specs_configuration(self):
         from .compare import validate_matched_specs
         root = Path(__file__).resolve().parents[1]

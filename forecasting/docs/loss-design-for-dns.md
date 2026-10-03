@@ -6,8 +6,8 @@ This document is for a DNS practitioner designing training objectives for the
 plain ViT and Yalamanchi-inspired model. It distinguishes **implemented behavior**,
 **verified data properties**, **unverified metadata**, and **candidate objectives**.
 The default MSE behavior is described below. A separate opt-in
-[MSE plus spectrum experiment](physical-loss-experiment.md) now implements one
-candidate; that document defines its exact loss and checkpoint semantics.
+[MSE plus spectrum experiment](../../archive/physical_loss/README.md) was retired
+as an unsuccessful experiment. Active training uses MSE only.
 
 The task remains deterministic forecasting of a particular future coarse velocity
 field. Statistical fidelity and physical consistency are additional requirements,
@@ -31,8 +31,7 @@ The architecture guides contain historical design discussion. For current loss,
 rollout, and checkpoint semantics, use this document and the code above.
 
 The default training path has no spectral or PDE penalty. Both models use the
-same full-gradient MSE objective in the original rollout configurations. The
-separate physical-loss entry points add a spectral term; neither path implements
+same full-gradient MSE objective in the original rollout configurations. The archived experiment added a spectral term. Active training does not implement
 a divergence, gradient, structure-function, momentum-residual, or energy-budget penalty.
 
 ## 2. Data contract: what is established

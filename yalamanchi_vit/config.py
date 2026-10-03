@@ -8,16 +8,9 @@ import yaml
 from .model import validate_model
 
 
-def load_config(path, *, allow_physical_loss=False):
+def load_config(path):
     path = Path(path).resolve()
     cfg = yaml.safe_load(path.read_text())
-    physical_loss = None
-    if allow_physical_loss:
-        if not isinstance(cfg, dict) or "loss" not in cfg:
-            raise ValueError("Physical experiment requires an explicit loss section")
-        physical_loss = cfg.pop("loss")
-        from forecasting.physical_loss import validate_loss
-        validate_loss(physical_loss)
     required = {
         "data": {"cache_dir", "channels", "train", "val", "test", "gaps", "dt_rtol", "dt_atol"},
         "model": {"grid_size", "in_channels", "patch_size", "embed_dim", "depths", "num_heads",
@@ -70,6 +63,4 @@ def load_config(path, *, allow_physical_loss=False):
             raise ValueError(f"{key} must be a nonempty path")
         value = Path(mapping[key]).expanduser()
         mapping[key] = str(value if value.is_absolute() else (path.parent / value).resolve())
-    if physical_loss is not None:
-        cfg["loss"] = physical_loss
     return cfg

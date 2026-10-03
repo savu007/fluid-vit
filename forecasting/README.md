@@ -1,7 +1,9 @@
 # Matched rollout comparison
 
+Current experiment: [runtime-targeted comparison](docs/runtime-comparison.md). Use `sbatch jobs/runtime-comparison.sbatch` from the repository root.
+
 For the new capacity-controlled experiment, see [matched specs](docs/matched-specs.md)
-and `matched-comparison.sbatch`. The original rollout setup below is preserved.
+and `jobs/matched-comparison.sbatch`. The original rollout setup below is preserved.
 
 See the [loss-design reference for DNS practitioners](docs/loss-design-for-dns.md)
 for current objective semantics, physical metadata gaps, and candidate diagnostics.
@@ -18,7 +20,7 @@ Parameter counts and computational costs differ with architecture.
 From the repository root:
 
 ```bash
-sbatch rollout-comparison.sbatch
+sbatch jobs/rollout-comparison.sbatch
 ```
 
 This requests two GPU nodes and runs both models concurrently, one model using
@@ -35,7 +37,7 @@ The runner refuses mismatched data or training settings before starting.
 Custom configurations can be passed as:
 
 ```bash
-sbatch rollout-comparison.sbatch \
+sbatch jobs/rollout-comparison.sbatch \
   --baseline-config /absolute/path/baseline.yaml \
   --yalamanchi-config /absolute/path/yalamanchi.yaml
 ```
@@ -131,8 +133,3 @@ For a local synthetic check with the PyTorch module loaded:
 PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/fluid-vit-matplotlib \
 python -B -m unittest baseline_vit.test_baseline yalamanchi_vit.test_baseline forecasting.test_comparison.ComparisonTests -v
 ```
-
-## Separate physical-loss experiment
-
-See the [MSE plus energy-spectrum experiment](docs/physical-loss-experiment.md) for the new opt-in
-training files, exact objective, checkpoints, and physical-loss.sbatch job.

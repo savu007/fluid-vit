@@ -10,7 +10,14 @@ __pycache__/
 data/
 outputs/
 checkpoints/
-logs/
+logs/*
+!logs/slurm/
+logs/slurm/*
+!logs/slurm/.gitkeep
 
 *.npy
 *.nc
+
+# Preserve relocated historical Slurm records.
+!logs/slurm/*.out
+!logs/slurm/*.err

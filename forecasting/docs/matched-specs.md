@@ -105,7 +105,7 @@ by the two models and must remain part of the experiment's interpretation.
 From the repository root:
 
 ~~~bash
-sbatch matched-comparison.sbatch
+sbatch jobs/matched-comparison.sbatch
 ~~~
 
 The job requests two nodes, one GPU per node, and a 12-hour maximum.

@@ -1,5 +1,7 @@
 # Yalamanchi-inspired 3D velocity forecasting baseline
 
+Current experiment: [runtime-targeted comparison](../forecasting/docs/runtime-comparison.md). Use `sbatch jobs/runtime-comparison.sbatch` from the repository root.
+
 An original local 3D SwinV2-UNet adaptation, **not an exact reproduction or
 the authors' released code**. See the [source audit](docs/source-audit.md) and
 [architecture guide for DNS practitioners](docs/architecture-for-dns.md).
@@ -17,12 +19,12 @@ differentiated five-step training. Pushforward and warm-start support are remove
 For the matched two-model experiment:
 
 ```bash
-sbatch rollout-comparison.sbatch
+sbatch jobs/rollout-comparison.sbatch
 ```
 
 See the [comparison run guide](../forecasting/README.md) for settings, output
 locations, metrics, tests, and individual commands. The existing
-`yalamanchi-vit.sbatch` can still launch this model alone.
+`jobs/yalamanchi-vit.sbatch` can still launch this model alone.
 
 The package uses the same filenames as `baseline_vit`:
 
@@ -60,8 +62,3 @@ multi-step plots, mixed precision, and distributed training are not implemented.
 
 `config-matched.yaml` defines the separate 10-block, 4³-patch experiment.
 See the [specification and run guide](../forecasting/docs/matched-specs.md).
-
-## Separate physical-loss experiment
-
-See the [MSE plus energy-spectrum experiment](../forecasting/docs/physical-loss-experiment.md) for the new opt-in
-training files, exact objective, checkpoints, and physical-loss.sbatch job.
