@@ -1,0 +1,2 @@
+Training baseline_vit; log: /global/u1/s/savu/projects/fluid-vit/runs/matched-comparison-59178955/baseline_vit.log
+Training yalamanchi_vit; log: /global/u1/s/savu/projects/fluid-vit/runs/matched-comparison-59178955/yalamanchi_vit.log
