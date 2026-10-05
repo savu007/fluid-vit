@@ -123,8 +123,8 @@ python -m yalamanchi_vit.evaluate --checkpoint PATH/best.pt --split val --horizo
 Original baseline one-step training and evaluation commands still work.
 The baseline evaluator without `--horizon` retains its original report format.
 Old baseline one-step checkpoints can also be evaluated with `--horizon 5`.
-Old Yalamanchi checkpoints remain evaluable, but pushforward configuration and
-training support have been removed. No warm-start or optimizer-resume option
+Old Yalamanchi checkpoints remain evaluable. Pushforward is now supported by
+the separate Yalamanchi training-strategy experiment. No warm-start or optimizer-resume option
 is included in this comparison workflow.
 
 For a local synthetic check with the PyTorch module loaded:
@@ -133,3 +133,8 @@ For a local synthetic check with the PyTorch module loaded:
 PYTHONDONTWRITEBYTECODE=1 OMP_NUM_THREADS=1 MPLCONFIGDIR=/tmp/fluid-vit-matplotlib \
 python -B -m unittest baseline_vit.test_baseline yalamanchi_vit.test_baseline forecasting.test_comparison.ComparisonTests -v
 ```
+
+## Yalamanchi training-strategy experiment
+
+[Five-step pushforward versus rollout, with 100-step testing](docs/yalamanchi-training-strategies.md).
+Submit from the repository root with `sbatch jobs/yalamanchi-training-strategies.sbatch`.

@@ -41,3 +41,8 @@ python -B -m unittest baseline_vit.test_baseline yalamanchi_vit.test_baseline fo
 [Baseline guide](baseline_vit/docs/architecture-for-dns.md) ·
 [Yalamanchi guide](yalamanchi_vit/docs/architecture-for-dns.md) ·
 [Loss reference](forecasting/docs/loss-design-for-dns.md)
+
+## Yalamanchi training-strategy experiment
+
+[Five-step pushforward versus rollout, with 100-step testing](forecasting/docs/yalamanchi-training-strategies.md).
+Submit from the repository root with `sbatch jobs/yalamanchi-training-strategies.sbatch`.

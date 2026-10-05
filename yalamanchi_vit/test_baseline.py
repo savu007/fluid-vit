@@ -194,7 +194,7 @@ class ObjectiveTests(unittest.TestCase):
         self.assertEqual(model.grad_modes, [True, True, True])
         with self.assertRaises(ValueError):
             forecast_loss(model, torch.ones(1, 1), torch.zeros(1, 3, 1),
-                          torch.ones(1, 3), "pushforward")
+                          torch.ones(1, 3), "unknown")
 
     def test_single_step_objective(self):
         model = self.Scale()

@@ -14,7 +14,8 @@ The default model has 8,303,423 parameters.
 
 Training and evaluation now use the shared `forecasting` package.
 `config.yaml` retains one-step training; `config-rollout.yaml` enables fully
-differentiated five-step training. Pushforward and warm-start support are removed.
+differentiated five-step training. The separate training-strategy experiment
+adds five-step pushforward and 100-step evaluation; no warm-start option is included.
 
 For the matched two-model experiment:
 
@@ -62,3 +63,8 @@ multi-step plots, mixed precision, and distributed training are not implemented.
 
 `config-matched.yaml` defines the separate 10-block, 4³-patch experiment.
 See the [specification and run guide](../forecasting/docs/matched-specs.md).
+
+## Yalamanchi training-strategy experiment
+
+[Five-step pushforward versus rollout, with 100-step testing](../forecasting/docs/yalamanchi-training-strategies.md).
+Submit from the repository root with `sbatch jobs/yalamanchi-training-strategies.sbatch`.

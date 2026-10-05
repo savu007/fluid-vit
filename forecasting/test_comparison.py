@@ -44,9 +44,12 @@ class ComparisonTests(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError):
                 validate_comparison(configs)
 
-    def test_both_config_loaders_reject_pushforward(self):
+    def test_both_config_loaders_accept_pushforward_reject_unknown(self):
         for cfg, loader in zip(self.configs(), (baseline_config, yalamanchi_config)):
             cfg["training"]["objective"] = "pushforward"
+            self.path.write_text(yaml.safe_dump(cfg))
+            self.assertEqual(loader(self.path)["training"]["objective"], "pushforward")
+            cfg["training"]["objective"] = "unknown"
             self.path.write_text(yaml.safe_dump(cfg))
             with self.assertRaisesRegex(ValueError, "objective"):
                 loader(self.path)

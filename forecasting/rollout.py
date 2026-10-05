@@ -10,12 +10,20 @@ from baseline_vit.engine import normalization_tensors
 def forecast_loss(model, x, targets, intervals, objective):
     """Inputs/targets are already normalized; targets are [B,H,C,X,Y,Z]."""
     horizon = targets.shape[1]
-    if objective not in ("single_step", "rollout"):
+    if objective not in ("single_step", "rollout", "pushforward"):
         raise ValueError("Unknown objective")
     if intervals.shape != (x.shape[0], horizon) or horizon < 1:
         raise ValueError("Need one interval per example per future step")
     if objective == "single_step" and horizon != 1:
         raise ValueError("single_step requires one target")
+    if objective == "pushforward":
+        if horizon < 2:
+            raise ValueError("pushforward requires at least two steps")
+        with torch.no_grad():
+            for step in range(horizon - 1):
+                x = model(x, intervals[:, step])
+        prediction = model(x.detach(), intervals[:, -1])
+        return (prediction - targets[:, -1]).square().mean()
     losses = []
     for step in range(horizon):
         x = model(x, intervals[:, step])

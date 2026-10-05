@@ -21,7 +21,7 @@ def main(argv=None):
     parser.add_argument("--config", type=Path, default=Path(__file__).with_name("config.yaml"))
     args = parser.parse_args(argv)
     cfg = load_config(args.config)
-    if cfg["training"].get("objective", "single_step") == "rollout":
+    if cfg["training"].get("objective", "single_step") in ("rollout", "pushforward"):
         from forecasting.train import train
         train(cfg, BaselineViT, "baseline_vit_v1")
         return

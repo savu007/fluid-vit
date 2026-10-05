@@ -14,7 +14,7 @@ from .dataset import CacheIndex, SequenceDataset, training_statistics
 from .rollout import forecast_loss, evaluate_rollout
 
 
-def train(cfg, model_class, architecture):
+def train(cfg, model_class, architecture, *, save_last=False):
     options = cfg["training"]
     device = select_device(options["device"])
     random.seed(cfg["seed"])
@@ -81,17 +81,21 @@ def train(cfg, model_class, architecture):
         with (output / "metrics.jsonl").open("a") as stream:
             stream.write(json.dumps(record, allow_nan=False) + "\n")
         print(json.dumps(record, allow_nan=False), flush=True)
-        if report["mean_normalized_mse"] < best:
-            best = report["mean_normalized_mse"]
+        improved = report["mean_normalized_mse"] < best
+        if improved or save_last:
             checkpoint = {
                 "format_version": 1, "architecture": architecture,
                 "model": model.state_dict(), "config": cfg, "normalization": stats,
                 "epoch": epoch, "validation": report, "dt_reference": index.dt_reference,
                 "cache_fingerprint": index.fingerprint, "environment": metadata,
             }
-            temporary = output / "best.pt.tmp"
-            torch.save(checkpoint, temporary)
-            temporary.replace(output / "best.pt")
+            filenames = (["best.pt"] if improved else []) + (["last.pt"] if save_last else [])
+            for filename in filenames:
+                temporary = output / (filename + ".tmp")
+                torch.save(checkpoint, temporary)
+                temporary.replace(output / filename)
+        if improved:
+            best = report["mean_normalized_mse"]
     print(f"Finished. Best mean validation normalized MSE={best:g}; checkpoint={output / 'best.pt'}", flush=True)
     print("Test field values were not evaluated. No optimizer-resume checkpoint is saved.", flush=True)
 
