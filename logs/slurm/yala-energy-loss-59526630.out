@@ -1,0 +1,28 @@
+{
+  "reference_checkpoint": "/global/u1/s/savu/projects/fluid-vit/runs/matched-comparison-59178955/yalamanchi_vit/best.pt",
+  "reference_sha256": "984980fd8abd49d8439b8348b60aab913c244e3b8f2e69eafcb3624457fbfed6",
+  "reference_report": "/global/u1/s/savu/projects/fluid-vit/runs/validation-slides-59353752/report.json",
+  "reference_report_sha256": "dee2a73c704300ac0c04db6aa87d0d85cb33277ffa3258a2b57252ee8b96e2c7",
+  "cache_fingerprint": "dd462326f8f4dbf3a44dd7963f31bde78d21636f8f810fa6ef954b72c3150691",
+  "seed": 42,
+  "training_files": 319,
+  "training_windows": 1595,
+  "training_validation_windows": 200,
+  "evaluation_split": "val",
+  "evaluation_horizon": 10,
+  "slice_axis": "z",
+  "slice_index": 32,
+  "weights": {
+    "energy-1": 1.0,
+    "energy-10": 10.0
+  },
+  "primary_checkpoint": "best.pt: lowest five-step validation normalized MSE",
+  "secondary_checkpoint": "best-objective.pt: lowest five-step validation combined loss",
+  "loss": "mean_lead(normalized MSE + lambda * mean_sample(((Kpred-Ktarget)/max(Ktarget, floor))^2))",
+  "energy": "K=.5*mean_space(u\u00b2+v\u00b2+w\u00b2), restored physical velocity; mean flow included",
+  "floor": "max(1e-8 * training mean kinetic energy, 1e-12)",
+  "arm_config_sha256": {
+    "energy-1": "2ebf9115939c9c2f137557efbf33ff0b128af39c0068bba5588eae57119f2e24",
+    "energy-10": "c7815849fd938df9726187588672f63c5fa1d0da23502a0a4eeb847375ce3610"
+  }
+}

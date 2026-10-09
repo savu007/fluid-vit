@@ -1,0 +1,60 @@
+[W1008 13:12:05.098092055 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 12582912 bytes (free: 6619136, total: 42404806656).
+[W1008 13:12:05.098190285 CUDACachingAllocator.cpp:3933] memory allocation failed with OOM on device 0 while trying to allocate 12582912 bytes (free: 6619136, total: 42404806656).
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/global/u1/s/savu/projects/fluid-vit/forecasting/compare_matey.py", line 316, in <module>
+    main()
+  File "/global/u1/s/savu/projects/fluid-vit/forecasting/compare_matey.py", line 308, in main
+    worker(args.output, args.model)
+  File "/global/u1/s/savu/projects/fluid-vit/forecasting/compare_matey.py", line 250, in worker
+    write_json(output / f'{name}-smoke.json', smoke(cfg, name, device))
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/forecasting/compare_matey.py", line 101, in smoke
+    loss = normalized_mse(forecast_five(model, history, times), targets, stats)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/ornl_vit/rollout.py", line 23, in forecast_five
+    prediction = model(state, times[:, step:step + 4], times[:, step + 4])
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/ornl_vit/model.py", line 80, in forward
+    prediction = self.core(history.transpose(0, 1), labels, None, opts)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/ornl_vit/matey/models/turbt.py", line 259, in forward
+    x_pred = self.forward(x, state_labels, bcs, opts)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/ornl_vit/matey/models/turbt.py", line 305, in forward
+    x = blk(x, sequence_parallel_group=sequence_parallel_group, bcs=bcs, leadtime=None, mask_padding=mask4attblk, local_att=local_att)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/ornl_vit/matey/models/spacetime_modules.py", line 119, in forward
+    x = self.spatialtemporal(x, sequence_parallel_group=sequence_parallel_group, leadtime=leadtime, mask_padding=mask_padding, t_pos_area=t_pos_area, local_att=local_att) # Residual in block
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1778, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/common/software/nersc9/pytorch/2.13.0/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1789, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/u1/s/savu/projects/fluid-vit/ornl_vit/matey/models/attention_modules.py", line 515, in forward
+    x = self.drop_path(x*self.gamma_att[None, :, None]) + input
+                       ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 12.00 MiB. GPU 0 has a total capacity of 39.49 GiB of which 6.31 MiB is free. Including non-PyTorch memory, this process has 39.48 GiB memory in use. Of the allocated memory 38.96 GiB is allocated by PyTorch, and 23.87 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+srun: error: nid002092: task 0: Exited with exit code 1
+srun: Terminating StepId=59524397.0

@@ -1,0 +1,12 @@
+
+The following have been reloaded with a version change:
+  1) cudatoolkit/13.2 => cudatoolkit/13.0     2) gcc-native/14 => gcc-native/13.2
+
+/global/u1/s/savu/projects/fluid-vit/forecasting/presentation.py:75: UserWarning: Glyph 12296 (\N{LEFT ANGLE BRACKET}) missing from font(s) DejaVu Sans.
+  figure.savefig(path, dpi=120)
+/global/u1/s/savu/projects/fluid-vit/forecasting/presentation.py:75: UserWarning: Glyph 12297 (\N{RIGHT ANGLE BRACKET}) missing from font(s) DejaVu Sans.
+  figure.savefig(path, dpi=120)
+/global/u1/s/savu/projects/fluid-vit/forecasting/presentation.py:76: UserWarning: Glyph 12296 (\N{LEFT ANGLE BRACKET}) missing from font(s) DejaVu Sans.
+  pdf.savefig(figure)
+/global/u1/s/savu/projects/fluid-vit/forecasting/presentation.py:76: UserWarning: Glyph 12297 (\N{RIGHT ANGLE BRACKET}) missing from font(s) DejaVu Sans.
+  pdf.savefig(figure)

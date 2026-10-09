@@ -9,13 +9,13 @@ import numpy as np
 from einops import rearrange, repeat
 import math
 from functools import partial
-from timm.layers import DropPath
-from .ringX_attn import ringX_varlen_attn_func as ringX_attn_func
+from ..compat import DropPath  # Local dependency adapter; see ornl_vit/README.md
+from ..compat import ringX_attn_func
 from .shared_modules import MLP, InstanceNorm1d_Masked
 #from .spatial_modules import RMSInstanceNormSpace
 
 import sys
-from flash_attn import flash_attn_func
+from ..compat import flash_attn_func
 from torch.nn.attention import SDPBackend, sdpa_kernel
 
 

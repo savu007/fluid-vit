@@ -1,5 +1,11 @@
 # Matched rollout comparison
 
+For the new four-frame MATEY versus one-frame Yalamanchi experiment, see
+[the comparison and energy diagnostics](docs/matey-yalamanchi-comparison.md)
+and `jobs/matey-yalamanchi-comparison.sbatch`. It trains both models afresh and
+evaluates common five-step test origins; its differing contexts and update counts
+are documented separately from the matched experiments below.
+
 Current experiment: [runtime-targeted comparison](docs/runtime-comparison.md). Use `sbatch jobs/runtime-comparison.sbatch` from the repository root.
 
 For the new capacity-controlled experiment, see [matched specs](docs/matched-specs.md)

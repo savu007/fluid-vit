@@ -1,0 +1,86 @@
+{
+  "source_configs": {
+    "matey": "/global/u1/s/savu/projects/fluid-vit/ornl_vit/config.yaml",
+    "yalamanchi": "/global/u1/s/savu/projects/fluid-vit/yalamanchi_vit/config-runtime.yaml"
+  },
+  "seed": 42,
+  "training_horizon": 5,
+  "test_horizon": 5,
+  "models": {
+    "matey": {
+      "model": {
+        "grid_size": 64,
+        "in_channels": 3,
+        "history": 4,
+        "patch_size": 2,
+        "embed_dim": 192,
+        "num_heads": 3,
+        "processor_blocks": 12,
+        "nlevels": 3,
+        "filtersize": 2,
+        "upsampling": "learned",
+        "drop_path": 0.2,
+        "attention_backend": "sdpa"
+      },
+      "training": {
+        "output_dir": "/global/u1/s/savu/projects/fluid-vit/runs/matey-yalamanchi-comparison-59524397/matey",
+        "device": "cuda",
+        "epochs": 100,
+        "batch_size": 1,
+        "num_workers": 0,
+        "learning_rate": 0.0001,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "max_train_windows": null,
+        "objective": "rollout_normalized_mse",
+        "horizon": 5
+      },
+      "training_windows": 214,
+      "validation_windows": 80
+    },
+    "yalamanchi": {
+      "model": {
+        "grid_size": 64,
+        "in_channels": 3,
+        "patch_size": 4,
+        "embed_dim": 96,
+        "depths": [
+          2,
+          2,
+          2,
+          2,
+          2
+        ],
+        "num_heads": [
+          4,
+          8,
+          16
+        ],
+        "window_size": 4,
+        "mlp_ratio": 4,
+        "dropout": 0.0,
+        "boundary": "periodic"
+      },
+      "training": {
+        "output_dir": "/global/u1/s/savu/projects/fluid-vit/runs/matey-yalamanchi-comparison-59524397/yalamanchi",
+        "device": "cuda",
+        "epochs": 100,
+        "batch_size": 2,
+        "num_workers": 0,
+        "learning_rate": 0.0001,
+        "weight_decay": 0.01,
+        "grad_clip": 1.0,
+        "max_train_pairs": null,
+        "objective": "rollout",
+        "horizon": 5
+      },
+      "training_windows": 535,
+      "validation_windows": 200
+    }
+  },
+  "test_windows": 353,
+  "cache_fingerprint": "3cba7e99834842461df8c9bc72f4671adba17dcf5261dc8ea1378735b45fed5a",
+  "selection": "Each model selects best mean five-step validation normalized MSE on its own within-file windows",
+  "comparison": "Same files, epochs, optimizer settings, loss and test origins; differing history, patches, width, windows, batches and updates",
+  "energy": "K=.5*mean_space(u\u00b2+v\u00b2+w\u00b2); includes mean flow; spectra use unit-width integer Fourier-mode shells"
+}

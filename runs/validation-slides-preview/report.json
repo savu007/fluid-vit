@@ -1,0 +1,116 @@
+{
+  "metadata": {
+    "architecture": "yalamanchi_vit",
+    "epoch": 100,
+    "objective": "rollout",
+    "training_horizon": 5,
+    "checkpoint": "/global/u1/s/savu/projects/fluid-vit/runs/matched-comparison-59178955/yalamanchi_vit/best.pt",
+    "checkpoint_sha256": "984980fd8abd49d8439b8348b60aab913c244e3b8f2e69eafcb3624457fbfed6",
+    "start": {
+      "file_id": 451,
+      "frame": 0,
+      "time": 121.72249603271484,
+      "end_time": 122.02233123779297
+    },
+    "split": "val",
+    "selection": "first chronological window",
+    "validation_windows": 351,
+    "horizon": 10,
+    "cache_fingerprint": "dd462326f8f4dbf3a44dd7963f31bde78d21636f8f810fa6ef954b72c3150691",
+    "dt_reference": 0.0299835205078125,
+    "slice_axis": "z",
+    "slice_index": 32
+  },
+  "selected_trajectory": [
+    {
+      "lead_steps": 1,
+      "physical_mse": 0.03823389788270766,
+      "relative_l2": 0.14920484569975734,
+      "persistence_mse": 0.09808487066889603,
+      "mse_skill_vs_persistence": 0.6101957659528003,
+      "predicted_kinetic_energy": 2.537441034305103,
+      "target_kinetic_energy": 2.5761668010285232
+    },
+    {
+      "lead_steps": 2,
+      "physical_mse": 0.07845679196674632,
+      "relative_l2": 0.2138796960239213,
+      "persistence_mse": 0.27579757097970353,
+      "mse_skill_vs_persistence": 0.7155276179987817,
+      "predicted_kinetic_energy": 2.515681728265774,
+      "target_kinetic_energy": 2.5726617462437433
+    },
+    {
+      "lead_steps": 3,
+      "physical_mse": 0.1001580571548135,
+      "relative_l2": 0.24180552242018719,
+      "persistence_mse": 0.4297802237483217,
+      "mse_skill_vs_persistence": 0.7669551747139817,
+      "predicted_kinetic_energy": 2.5021791072285913,
+      "target_kinetic_energy": 2.569476915617283
+    },
+    {
+      "lead_steps": 4,
+      "physical_mse": 0.11648254817378852,
+      "relative_l2": 0.26091563544019014,
+      "persistence_mse": 0.5530341708374856,
+      "mse_skill_vs_persistence": 0.7893754955550152,
+      "predicted_kinetic_energy": 2.4916801999219005,
+      "target_kinetic_energy": 2.566562896329267
+    },
+    {
+      "lead_steps": 5,
+      "physical_mse": 0.1310907766518982,
+      "relative_l2": 0.2769379726690903,
+      "persistence_mse": 0.6531484956456898,
+      "mse_skill_vs_persistence": 0.7992940693795759,
+      "predicted_kinetic_energy": 2.4835352634565098,
+      "target_kinetic_energy": 2.5638840363234827
+    },
+    {
+      "lead_steps": 6,
+      "physical_mse": 0.14527324291834168,
+      "relative_l2": 0.2916780108237151,
+      "persistence_mse": 0.7366130708655222,
+      "mse_skill_vs_persistence": 0.8027821543437381,
+      "predicted_kinetic_energy": 2.4778574861898583,
+      "target_kinetic_energy": 2.5613534437270062
+    },
+    {
+      "lead_steps": 7,
+      "physical_mse": 0.15955708211899108,
+      "relative_l2": 0.3058319823750928,
+      "persistence_mse": 0.8091924341446975,
+      "mse_skill_vs_persistence": 0.8028193599120336,
+      "predicted_kinetic_energy": 2.4743221097381314,
+      "target_kinetic_energy": 2.5588306556909
+    },
+    {
+      "lead_steps": 8,
+      "physical_mse": 0.17324139568595598,
+      "relative_l2": 0.3188312071443229,
+      "persistence_mse": 0.873897667753664,
+      "mse_skill_vs_persistence": 0.8017600892204353,
+      "predicted_kinetic_energy": 2.472192794669745,
+      "target_kinetic_energy": 2.5563557181918393
+    },
+    {
+      "lead_steps": 9,
+      "physical_mse": 0.18666626396792538,
+      "relative_l2": 0.3311093080593824,
+      "persistence_mse": 0.9331243663849703,
+      "mse_skill_vs_persistence": 0.7999556428998937,
+      "predicted_kinetic_energy": 2.4707419701320754,
+      "target_kinetic_energy": 2.553961317009761
+    },
+    {
+      "lead_steps": 10,
+      "physical_mse": 0.20033309737576688,
+      "relative_l2": 0.3431782503902086,
+      "persistence_mse": 0.988189442245746,
+      "mse_skill_vs_persistence": 0.7972725787066773,
+      "predicted_kinetic_energy": 2.470646617521868,
+      "target_kinetic_energy": 2.5515521745661363
+    }
+  ]
+}

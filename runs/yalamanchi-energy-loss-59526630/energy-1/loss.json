@@ -1,0 +1,8 @@
+{
+  "kind": "relative_squared_global_kinetic_energy",
+  "weight": 1.0,
+  "denominator_floor": 2.5936834274600633e-08,
+  "includes_mean_flow": true,
+  "physical_velocity": true,
+  "horizon": 5
+}

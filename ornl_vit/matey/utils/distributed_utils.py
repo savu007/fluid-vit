@@ -1,0 +1,399 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 UT-Battelle, LLC
+# This file is part of the MATEY Project.
+
+import os
+import re
+from functools import reduce
+from operator import mul
+import torch
+import torch.distributed as dist
+from einops import rearrange
+from datetime import timedelta
+from torch.optim.lr_scheduler import CosineAnnealingLR
+import math
+
+def get_log2_int(n):
+    npower = n.bit_length() - 1
+    #remain = math.ceil(n/2**npower)//2
+    #return npower, npower+remain
+    return npower
+
+def check_sp(group, global_rank, group_id):
+    group_rank = dist.get_group_rank(group, global_rank)
+    print(f"Rank {global_rank} is in group {group_id}, {group} with group rank {group_rank}")
+  
+        
+def setup_dist(params=None):
+    # Detect launch environment: SLURM (srun) vs torchrun / manual
+    if "SLURM_NTASKS" in os.environ:
+        # ---------- SLURM path ----------
+        world_size = int(os.environ['SLURM_NTASKS'])
+        global_rank = rank = int(os.environ['SLURM_PROCID'])
+        local_rank = int(os.environ['SLURM_LOCALID'])
+        os.environ['WORLD_SIZE'] = str(world_size)
+        os.environ['RANK'] = str(global_rank)
+        os.environ['LOCAL_RANK'] = str(local_rank)
+        os.environ['NCCL_SOCKET_IFNAME'] = 'hsn0'
+        if os.getenv("SLURM_STEP_NODELIST") is not None:
+            os.environ['MASTER_ADDR'] = parse_slurm_nodelist(os.environ["SLURM_STEP_NODELIST"])[0]
+    else:
+        # ---------- torchrun / generic path ----------
+        # torchrun sets RANK, LOCAL_RANK, WORLD_SIZE, MASTER_ADDR, MASTER_PORT
+        world_size = int(os.environ.get('WORLD_SIZE', 1))
+        global_rank = rank = int(os.environ.get('RANK', 0))
+        local_rank = int(os.environ.get('LOCAL_RANK', 0))
+        os.environ.setdefault('MASTER_ADDR', '127.0.0.1')
+        os.environ.setdefault('MASTER_PORT', '29500')
+
+    if params is None or (params.use_ddp or params.use_fsdp):
+        dist.init_process_group(
+            backend="nccl",
+            init_method='env://',
+            rank=rank,
+            world_size=world_size,
+        )
+        torch.cuda.set_device(local_rank)
+
+    device = torch.device(local_rank) if torch.cuda.is_available() else torch.device("cpu")
+    return device, world_size, local_rank, global_rank
+
+def closest_factors(n, dim):
+    assert n > 0 and dim > 0, f"{n} and {dim} must be greater than 0"
+
+    if dim == 1:
+        return [n]
+    
+    """
+    factors = []
+    i = 2
+    nn = n
+    while nn > 1:
+        while nn % i == 0:
+            factors.append(i)
+            nn //= i
+        i += 1
+
+    # Reduce the list of factors to match the dimension (dim)
+    while len(factors) > dim:
+        # Combine the two smallest factors
+        factors[1] *= factors[0]
+        factors.pop(0)
+        factors.sort()
+    if len(factors) < dim:
+        factors = [1]*(dim-len(factors)) + factors
+    """
+
+    factors = [1] * dim
+    factors[0] = n
+
+    while True:
+        prev = factors.copy()
+        factors.sort()
+        largest = factors[-1]
+        factor1=factor2=None
+        for i in range(math.isqrt(largest), 1, -1):
+            if largest % i == 0:
+                factor1, factor2 = i, largest // i
+                break
+        if factor1 is None:
+            break
+        # If cannot further balance, break
+        if factor1 == 1 or factor2 == largest or len(set(factors)) == 1:
+            break
+        cand = factors.copy()
+        cand[-1] = factor2
+        cand[0] *= factor1
+        if max(cand)/min(cand)>max(factors)/min(factors):
+            #exit when more imbalanced
+            break
+        factors = cand
+        if factors == prev:
+            break
+
+    factors.sort()
+
+    assert reduce(mul, factors) == n and len(factors)==dim, f"factors, {factors}, dim {dim}"
+
+    return factors
+
+def get_sequence_parallel_group(sequence_parallel_groupsize=None, num_sequence_parallel_groups=None):
+    """
+    Create sequence parallel group based on number of sequence_parallel_groups or sequence_parallel_groupsize on each rank.
+    """
+    world_size = dist.get_world_size()
+    rank = dist.get_rank()
+    if sequence_parallel_groupsize is None:
+        sequence_parallel_size=world_size//num_sequence_parallel_groups
+    else:
+        sequence_parallel_size = sequence_parallel_groupsize
+        num_sequence_parallel_groups=world_size//sequence_parallel_size
+    
+    sequence_parallel_groups = []
+    for start in range(0, world_size, sequence_parallel_size):
+        ranks = list(range(start, start + sequence_parallel_size))
+        sequence_parallel_group = dist.new_group(ranks,timeout=timedelta(minutes=40))
+        sequence_parallel_groups.append(sequence_parallel_group)
+
+    group_id = rank // sequence_parallel_size
+    sequence_parallel_group = sequence_parallel_groups[group_id] 
+    return sequence_parallel_group, group_id, num_sequence_parallel_groups
+
+def splitsample(x, y, group, sequence_parallel_size, blockdict=None):
+    """
+    split a sample based on sequence split groups
+    """
+    D, H, W = x.shape[3:]
+    ##############################################################
+    #based on sequence_parallel_size, split the data in D, H, W direciton
+    nproc_blocks = closest_factors(sequence_parallel_size, 3)
+    assert reduce(mul, nproc_blocks)==sequence_parallel_size
+    ##############################################################
+    #split a sample by space into nprocz blocks for z-dim, nprocx blocks for x-dim, and nprocy blocks for y-dim
+    Dloc = D//nproc_blocks[0]
+    Hloc = H//nproc_blocks[1]
+    Wloc = W//nproc_blocks[2]
+    #B,T,C,D,H,W-->B,T,C,(sequence_parallel_size=nprocz*nprocx*nprocy),psz,psx,psy
+    xsplits = x.unfold(3, Dloc, Dloc).unfold(4, Hloc, Hloc).unfold(5, Wloc, Wloc).flatten(start_dim=3, end_dim=5)
+    #B,C,D,H,W-->B,C,(sequence_parallel_size),psz,psx,psy
+    ysplits = y.unfold(2, Dloc, Dloc).unfold(3, Hloc, Hloc).unfold(4, Wloc, Wloc).flatten(start_dim=2, end_dim=4)
+    xsplits=rearrange(xsplits,'b t c npb d h w -> npb b t c d h w').contiguous()
+    ysplits=rearrange(ysplits,'b c npb d h w -> npb b c d h w').contiguous()
+    ##############################################################
+    #keep track of each block/split ID
+    iz, ix, iy = torch.meshgrid(torch.arange(nproc_blocks[0]), 
+                                torch.arange(nproc_blocks[1]),  
+                                torch.arange(nproc_blocks[2]), indexing="ij")
+    blockIDs = torch.stack([iz.flatten(), ix.flatten(), iy.flatten()], dim=-1) #[sequence_parallel_size, 3]
+    if blockdict is not None:
+        Lz, Lx, Ly = blockdict["Lzxy"]
+        Lz_start, Lx_start, Ly_start = blockdict["zxy_start"]
+        d_dim, h_dim, w_dim = blockdict["Ind_dim"] 
+    else:
+        blockdict={}
+        Lz, Lx, Ly = 1.0, 1.0, 1.0
+        Lz_start, Lx_start, Ly_start = 0.0, 0.0, 0.0
+        d_dim, h_dim, w_dim = D, H, W
+    
+    blockdict["Lzxy"] = [Lz/nproc_blocks[0], Lx/nproc_blocks[1], Ly/nproc_blocks[2]]
+    blockdict["nproc_blocks"] = nproc_blocks
+    blockdict["Ind_dim"] = [d_dim//nproc_blocks[0], h_dim//nproc_blocks[1], w_dim//nproc_blocks[2]]
+    #######################
+    #get the split at group_rank of x and y
+    group_rank = dist.get_rank(group)
+    #correct position
+    idz, idx, idy = blockIDs[group_rank,:]
+    Lz_loc, Lx_loc, Ly_loc = blockdict["Lzxy"]
+    blockdict["zxy_start"] = [Lz_start+idz*Lz_loc, Lx_start+idx*Lx_loc, Ly_start+idy*Ly_loc]
+    return xsplits[group_rank,...], ysplits[group_rank,...], blockdict
+    
+def splitsample_rank0(x, y, sequence_parallel_size, blockdict=None):
+    """
+    split a sample based on sequence split groups, operated only on group_rank=0
+    """
+    D, H, W = x.shape[3:]
+    ##############################################################
+    #based on sequence_parallel_size, split the data in D, H, W direciton
+    nproc_blocks = closest_factors(sequence_parallel_size, 3)
+    assert reduce(mul, nproc_blocks)==sequence_parallel_size
+    ##############################################################
+    #split a sample by space into nprocz blocks for z-dim, nprocx blocks for x-dim, and nprocy blocks for y-dim
+    Dloc = D//nproc_blocks[0]
+    Hloc = H//nproc_blocks[1]
+    Wloc = W//nproc_blocks[2]
+    #B,T,C,D,H,W-->B,T,C,(sequence_parallel_size=nprocz*nprocx*nprocy),psz,psx,psy
+    xsplits = x.unfold(3, Dloc, Dloc).unfold(4, Hloc, Hloc).unfold(5, Wloc, Wloc).flatten(start_dim=3, end_dim=5)
+    #B,C,D,H,W-->B,C,(sequence_parallel_size),psz,psx,psy
+    ysplits = y.unfold(2, Dloc, Dloc).unfold(3, Hloc, Hloc).unfold(4, Wloc, Wloc).flatten(start_dim=2, end_dim=4)
+    xsplits=rearrange(xsplits,'b t c npb d h w -> npb b t c d h w').contiguous()
+    ysplits=rearrange(ysplits,'b c npb d h w -> npb b c d h w').contiguous()
+    ##############################################################
+    #keep track of each block/split ID
+    iz, ix, iy = torch.meshgrid(torch.arange(nproc_blocks[0]), 
+                                torch.arange(nproc_blocks[1]),  
+                                torch.arange(nproc_blocks[2]), indexing="ij")
+    blockIDs = torch.stack([iz.flatten(), ix.flatten(), iy.flatten()], dim=-1) #[sequence_parallel_size, 3]
+    if blockdict is not None:
+        Lz, Lx, Ly = blockdict["Lzxy"]
+        Lz_start, Lx_start, Ly_start = blockdict["zxy_start"]
+        d_dim, h_dim, w_dim = blockdict["Ind_dim"] 
+    else:
+        blockdict={}
+        Lz, Lx, Ly = 1.0, 1.0, 1.0
+        Lz_start, Lx_start, Ly_start = 0.0, 0.0, 0.0
+        d_dim, h_dim, w_dim = D, H, W
+    
+    blockdict["Lzxy"] = [Lz/nproc_blocks[0], Lx/nproc_blocks[1], Ly/nproc_blocks[2]]
+    blockdict["nproc_blocks"] = nproc_blocks
+    blockdict["Ind_dim"] = [d_dim/nproc_blocks[0], h_dim/nproc_blocks[1], w_dim/nproc_blocks[2]]
+    #######################
+    blockdict["zxy_start"]=[]
+    for group_rank in range(sequence_parallel_size):
+        #correct position
+        idz, idx, idy = blockIDs[group_rank,:]
+        Lz_loc, Lx_loc, Ly_loc = blockdict["Lzxy"]
+        blockdict["zxy_start"].append([Lz_start+idz*Lz_loc, Lx_start+idx*Lx_loc, Ly_start+idy*Ly_loc])
+    #[npb b t c d h w] for xplits; [npb b c d h w] for ysplits; blockdict["zxy_start"] contains list of "zxy_start" for all members/ranks inside group
+    return xsplits, ysplits, blockdict
+
+def parse_slurm_nodelist(nodelist):
+    #from: https://github.com/ORNL/HydraGNN/blob/40524b2ebc2e7b9c61aa2280af7d64f3d69d3f85/hydragnn/utils/distributed.py#L53
+    """
+    Parse SLURM_NODELIST env string to get list of nodes.
+    Usage example:
+        parse_slurm_nodelist(os.environ["SLURM_NODELIST"])
+    Input examples:
+        "or-condo-g04"
+        "or-condo-g[05,07-08,13]"
+        "or-condo-g[05,07-08,13],or-condo-h[01,12]"
+    """
+    nlist = list()
+    for block, _ in re.findall(r"([\w-]+(\[[\d\-,]+\])*)", nodelist):
+        m = re.match(r"^(?P<prefix>[\w\-]+)\[(?P<group>.*)\]", block)
+        if m is None:
+            ## single node
+            nlist.append(block)
+        else:
+            ## multiple nodes
+            g = m.groups()
+            prefix = g[0]
+            for sub in g[1].split(","):
+                if "-" in sub:
+                    start, end = re.match(r"(\d+)-(\d+)", sub).groups()
+                    fmt = "%%0%dd" % (len(start))
+                    for i in range(int(start), int(end) + 1):
+                        node = prefix + fmt % i
+                        nlist.append(node)
+                else:
+                    node = prefix + sub
+                    nlist.append(node)
+
+    return nlist
+
+def add_weight_decay(model, weight_decay=1e-5, inner_lr=1e-3, skip_list=()):
+    """ From Ross Wightman at:
+        https://discuss.pytorch.org/t/weight-decay-in-the-optimizers-is-a-bad-idea-especially-with-batchnorm/16994/3
+
+        Goes through the parameter list and if the squeeze dim is 1 or 0 (usually means bias or scale)
+        then don't apply weight decay.
+        """
+    decay = []
+    no_decay = []
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if (len(param.squeeze().shape) <= 1 or name in skip_list):
+            no_decay.append(param)
+        else:
+            decay.append(param)
+    return [
+            {'params': no_decay, 'weight_decay': 0.,},
+            {'params': decay, 'weight_decay': weight_decay}]
+
+class CosineNoIncrease(CosineAnnealingLR):
+    def get_lr(self):
+        if self.last_epoch >= self.T_max:
+            return [self.eta_min] * len(self.base_lrs)
+        return super().get_lr()
+
+def determine_turt_levels(ps, DHW, nlevels_more, cutoff=20, filtersize=2):
+    """
+    #ps: patch size
+    #DHW: D,H,W
+    #nlevels_more: specified number of levels in TT, beyond base (so when nlevles_more=0, 1 layer/equivalent ViT)
+
+    #Currently simple, heuristic way to decide how many TT levels for each dataset based on data resolution and patch sie
+    #Roughtly speaking, finer resolution (larger log2intsum) leads to more levels;
+    #but then the maximum levels are also constrained by the smaller grid size in 2/3 directions and patch size (assuming equal in each direction)
+    #There might be not enough cells to filter/patch.
+    """
+    ips = get_log2_int(ps[-1])
+    #####
+    log2intsum = sum([get_log2_int(dim_) for dim_ in DHW])
+    if DHW[0]==1:
+        log2int = min([get_log2_int(DHW[1]), get_log2_int(DHW[2])])
+    else:
+        log2int = min([get_log2_int(dim_) for dim_ in DHW])
+    if log2intsum>=cutoff:
+        imod_bottom=max(0, nlevels_more-ips)
+    else:
+        imod_bottom=max(min(nlevels_more, nlevels_more-log2int+4),0)
+    factor=filtersize**(nlevels_more-imod_bottom)*ps[-1]
+    for dim in DHW:
+        if dim>1 and dim%factor>0:
+            return nlevels_more
+    return imod_bottom
+
+def assemble_samples(tar, pred, blockdict, global_rank, current_group, group_rank, group_size, device):
+    # Assemble samples from all sequence parallel ranks for prediction and target
+    tar = tar.to(device)
+    pred = pred.to(device)       
+    if not dist.is_initialized() or group_size==1:
+        return pred, tar
+    if group_rank==0:
+        tar_list = [torch.empty_like(tar) for _ in range(group_size)]
+        pred_list = [torch.empty_like(pred) for _ in range(group_size)]
+    else:
+        tar_list = None
+        pred_list = None
+    global_dst = dist.get_global_rank(current_group, 0)
+    dist.gather(tar, tar_list, dst=global_dst, group=current_group)
+    dist.gather(pred, pred_list, dst=global_dst, group=current_group)
+    if global_rank==0:
+        nproc_blocks = blockdict["nproc_blocks"]
+        tar_all = torch.stack(tar_list, dim=0)
+        pred_all = torch.stack(pred_list, dim=0)
+        p1,p2,p3=nproc_blocks
+        tar_all = rearrange(tar_all,'(p1 p2 p3) b c d h w -> b c (p1 d) (p2 h) (p3 w)',    p1=p1, p2=p2, p3=p3)
+        pred_all = rearrange(pred_all,'(p1 p2 p3) b c d h w -> b c (p1 d) (p2 h) (p3 w)',p1=p1, p2=p2, p3=p3)
+        return pred_all, tar_all
+    else :
+        return None, None
+    
+def broadcast_scalar(value, src=0, device=None):
+    if not dist.is_available() or not dist.is_initialized():
+        return value
+
+    tensor = torch.zeros(1, device=device)
+
+    if dist.get_rank() == src:
+        tensor.fill_(value)
+
+    dist.broadcast(tensor, src=src)
+    return tensor.item()    
+
+
+def getblocksplitstat(group_rank, group_size, D, H, W): 
+    Lz, Lx, Ly = 1.0, 1.0, 1.0
+    Lz_start, Lx_start, Ly_start = 0.0, 0.0, 0.0
+    ##############################################################
+    #based on group_size, split the data in D, H, W direciton
+    if group_size>1:
+        if D==1:
+            nproc_blocks = [1] + closest_factors(group_size, 2)
+        else:
+            nproc_blocks = closest_factors(group_size, 3)
+    else:
+        nproc_blocks = [1,1,1]
+    assert reduce(mul, nproc_blocks)==group_size
+    ##############################################################
+    #split a sample by space into nprocz blocks for z-dim, nprocx blocks for x-dim, and nprocy blocks for y-dim
+    Dloc = D//nproc_blocks[0]
+    Hloc = H//nproc_blocks[1]
+    Wloc = W//nproc_blocks[2]
+    #keep track of each block/split ID
+    iz, ix, iy = torch.meshgrid(torch.arange(nproc_blocks[0]), 
+                                torch.arange(nproc_blocks[1]),  
+                                torch.arange(nproc_blocks[2]), indexing="ij")
+    blockIDs = torch.stack([iz.flatten(), ix.flatten(), iy.flatten()], dim=-1) #[group_size, 3]
+
+    blockdict={}
+    blockdict["Lzxy"] = [Lz/nproc_blocks[0], Lx/nproc_blocks[1], Ly/nproc_blocks[2]]
+    blockdict["nproc_blocks"] = nproc_blocks
+    blockdict["Ind_dim"] = [Dloc, Hloc, Wloc]
+    #######################
+    idz, idx, idy = blockIDs[group_rank,:]
+    blockdict["Ind_start"] = [idz*Dloc, idx*Hloc, idy*Wloc]
+    Lz_loc, Lx_loc, Ly_loc = blockdict["Lzxy"]
+    blockdict["zxy_start"]=[Lz_start+idz*Lz_loc, Lx_start+idx*Lx_loc, Ly_start+idy*Ly_loc]
+    return blockdict

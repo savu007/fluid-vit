@@ -1,0 +1,253 @@
+{
+  "metadata": {
+    "architecture": "yalamanchi_vit",
+    "epoch": 100,
+    "objective": "rollout",
+    "training_horizon": 5,
+    "checkpoint": "/global/u1/s/savu/projects/fluid-vit/runs/matched-comparison-59178955/yalamanchi_vit/best.pt",
+    "checkpoint_sha256": "984980fd8abd49d8439b8348b60aab913c244e3b8f2e69eafcb3624457fbfed6",
+    "start": {
+      "file_id": 451,
+      "frame": 0,
+      "time": 121.72249603271484,
+      "end_time": 122.02233123779297
+    },
+    "split": "val",
+    "selection": "first chronological window",
+    "validation_windows": 351,
+    "horizon": 10,
+    "cache_fingerprint": "dd462326f8f4dbf3a44dd7963f31bde78d21636f8f810fa6ef954b72c3150691",
+    "dt_reference": 0.0299835205078125,
+    "slice_axis": "z",
+    "slice_index": 32
+  },
+  "selected_trajectory": [
+    {
+      "lead_steps": 1,
+      "physical_mse": 0.03823416091253183,
+      "relative_l2": 0.1492053589257035,
+      "persistence_mse": 0.09808487066889603,
+      "mse_skill_vs_persistence": 0.6101930842973893,
+      "predicted_kinetic_energy": 2.537441265539865,
+      "target_kinetic_energy": 2.5761668010285232
+    },
+    {
+      "lead_steps": 2,
+      "physical_mse": 0.07845778833945477,
+      "relative_l2": 0.21388105411676506,
+      "persistence_mse": 0.27579757097970353,
+      "mse_skill_vs_persistence": 0.7155240053030466,
+      "predicted_kinetic_energy": 2.515676010865203,
+      "target_kinetic_energy": 2.5726617462437433
+    },
+    {
+      "lead_steps": 3,
+      "physical_mse": 0.10015916957192623,
+      "relative_l2": 0.24180686523704012,
+      "persistence_mse": 0.4297802237483217,
+      "mse_skill_vs_persistence": 0.7669525863745206,
+      "predicted_kinetic_energy": 2.5021690910949865,
+      "target_kinetic_energy": 2.569476915617283
+    },
+    {
+      "lead_steps": 4,
+      "physical_mse": 0.11648402829738258,
+      "relative_l2": 0.2609172931398513,
+      "persistence_mse": 0.5530341708374856,
+      "mse_skill_vs_persistence": 0.7893728191858645,
+      "predicted_kinetic_energy": 2.491655360945705,
+      "target_kinetic_energy": 2.566562896329267
+    },
+    {
+      "lead_steps": 5,
+      "physical_mse": 0.13109333461389933,
+      "relative_l2": 0.27694067458822286,
+      "persistence_mse": 0.6531484956456898,
+      "mse_skill_vs_persistence": 0.7992901530236198,
+      "predicted_kinetic_energy": 2.483501407832489,
+      "target_kinetic_energy": 2.5638840363234827
+    },
+    {
+      "lead_steps": 6,
+      "physical_mse": 0.14527665988230348,
+      "relative_l2": 0.2916814410747748,
+      "persistence_mse": 0.7366130708655222,
+      "mse_skill_vs_persistence": 0.8027775155936304,
+      "predicted_kinetic_energy": 2.477807583760808,
+      "target_kinetic_energy": 2.5613534437270062
+    },
+    {
+      "lead_steps": 7,
+      "physical_mse": 0.15956101403153558,
+      "relative_l2": 0.30583575061020934,
+      "persistence_mse": 0.8091924341446975,
+      "mse_skill_vs_persistence": 0.8028145008545602,
+      "predicted_kinetic_energy": 2.4742538807913568,
+      "target_kinetic_energy": 2.5588306556909
+    },
+    {
+      "lead_steps": 8,
+      "physical_mse": 0.1732456999400788,
+      "relative_l2": 0.3188351678663215,
+      "persistence_mse": 0.873897667753664,
+      "mse_skill_vs_persistence": 0.8017551638678665,
+      "predicted_kinetic_energy": 2.472099295555884,
+      "target_kinetic_energy": 2.5563557181918393
+    },
+    {
+      "lead_steps": 9,
+      "physical_mse": 0.18667064746520345,
+      "relative_l2": 0.3311131957683849,
+      "persistence_mse": 0.9331243663849703,
+      "mse_skill_vs_persistence": 0.7999509452438942,
+      "predicted_kinetic_energy": 2.4706288292014817,
+      "target_kinetic_energy": 2.553961317009761
+    },
+    {
+      "lead_steps": 10,
+      "physical_mse": 0.2003372400228125,
+      "relative_l2": 0.34318179862820375,
+      "persistence_mse": 0.988189442245746,
+      "mse_skill_vs_persistence": 0.7972683865478983,
+      "predicted_kinetic_energy": 2.4705116497001303,
+      "target_kinetic_energy": 2.5515521745661363
+    }
+  ],
+  "full_validation": {
+    "horizon": 10,
+    "samples": 351,
+    "horizons": [
+      {
+        "lead_steps": 1,
+        "normalized_mse": 0.020364197038273163,
+        "physical_mse": 0.03508726783294566,
+        "physical_mae": 0.1391138659731106,
+        "relative_l2": 0.14333844720088312,
+        "persistence_mse": 0.09126042259411608,
+        "persistence_relative_l2": 0.23116876730732447,
+        "mse_skill_vs_persistence": 0.6155259110622628,
+        "predicted_kinetic_energy": 2.5216466574088114,
+        "target_kinetic_energy": 2.5616242165489695,
+        "samples": 351
+      },
+      {
+        "lead_steps": 2,
+        "normalized_mse": 0.041912719379764284,
+        "physical_mse": 0.07225862100194928,
+        "physical_mae": 0.2026308864480435,
+        "relative_l2": 0.20569847103169772,
+        "persistence_mse": 0.25908284003748355,
+        "persistence_relative_l2": 0.38949828838551165,
+        "mse_skill_vs_persistence": 0.7210983908023586,
+        "predicted_kinetic_energy": 2.4994130705687914,
+        "target_kinetic_energy": 2.5616441579328497,
+        "samples": 351
+      },
+      {
+        "lead_steps": 3,
+        "normalized_mse": 0.0534619686554453,
+        "physical_mse": 0.09217123255043104,
+        "physical_mae": 0.23021693647099342,
+        "relative_l2": 0.23231741757531965,
+        "persistence_mse": 0.4072543109369384,
+        "persistence_relative_l2": 0.48833395067963015,
+        "mse_skill_vs_persistence": 0.7736764717397838,
+        "predicted_kinetic_energy": 2.484903147142174,
+        "target_kinetic_energy": 2.5616695811513863,
+        "samples": 351
+      },
+      {
+        "lead_steps": 4,
+        "normalized_mse": 0.06229675153036496,
+        "physical_mse": 0.10738219232765189,
+        "physical_mae": 0.2490523911339876,
+        "relative_l2": 0.25075387244425507,
+        "persistence_mse": 0.528017111151517,
+        "persistence_relative_l2": 0.556039333159447,
+        "mse_skill_vs_persistence": 0.7966312264133462,
+        "predicted_kinetic_energy": 2.4744680343636554,
+        "target_kinetic_energy": 2.5616997629760943,
+        "samples": 351
+      },
+      {
+        "lead_steps": 5,
+        "normalized_mse": 0.07044869329089976,
+        "physical_mse": 0.12140961486676027,
+        "physical_mae": 0.2650988967795839,
+        "relative_l2": 0.26662764192294747,
+        "persistence_mse": 0.6288072774357629,
+        "persistence_relative_l2": 0.6067885968948071,
+        "mse_skill_vs_persistence": 0.8069207860286522,
+        "predicted_kinetic_energy": 2.4668071284857263,
+        "target_kinetic_energy": 2.5617337912681983,
+        "samples": 351
+      },
+      {
+        "lead_steps": 6,
+        "normalized_mse": 0.07836805569289045,
+        "physical_mse": 0.13503318016109417,
+        "physical_mae": 0.2797233514801283,
+        "relative_l2": 0.28118730964838695,
+        "persistence_mse": 0.7153977317605466,
+        "persistence_relative_l2": 0.6472160044252867,
+        "mse_skill_vs_persistence": 0.8112474024361436,
+        "predicted_kinetic_energy": 2.461347409192747,
+        "target_kinetic_energy": 2.5617710994627974,
+        "samples": 351
+      },
+      {
+        "lead_steps": 7,
+        "normalized_mse": 0.08626899555773931,
+        "physical_mse": 0.14862295295897324,
+        "physical_mae": 0.2935296529226155,
+        "relative_l2": 0.29499521483844465,
+        "persistence_mse": 0.7916838493962759,
+        "persistence_relative_l2": 0.6808444803190371,
+        "mse_skill_vs_persistence": 0.8122698182206061,
+        "predicted_kinetic_energy": 2.4577092864268066,
+        "target_kinetic_energy": 2.561811686327472,
+        "samples": 351
+      },
+      {
+        "lead_steps": 8,
+        "normalized_mse": 0.09426083048265638,
+        "physical_mse": 0.1623681157798316,
+        "physical_mae": 0.30682526703355,
+        "relative_l2": 0.30833205106293043,
+        "persistence_mse": 0.8602486421117136,
+        "persistence_relative_l2": 0.7097089700714103,
+        "mse_skill_vs_persistence": 0.8112544352511211,
+        "predicted_kinetic_energy": 2.455510518389069,
+        "target_kinetic_energy": 2.561855713302055,
+        "samples": 351
+      },
+      {
+        "lead_steps": 9,
+        "normalized_mse": 0.10242018043585424,
+        "physical_mse": 0.17640192454724557,
+        "physical_mae": 0.31982206619525855,
+        "relative_l2": 0.3213778107006749,
+        "persistence_mse": 0.922805680140339,
+        "persistence_relative_l2": 0.7350541907388471,
+        "mse_skill_vs_persistence": 0.8088417438865151,
+        "predicted_kinetic_energy": 2.4544734744337595,
+        "target_kinetic_energy": 2.561903707619263,
+        "samples": 351
+      },
+      {
+        "lead_steps": 10,
+        "normalized_mse": 0.11079617748668869,
+        "physical_mse": 0.19080962200270138,
+        "physical_mae": 0.33261967874822185,
+        "relative_l2": 0.33424115522645054,
+        "persistence_mse": 0.9805400567817778,
+        "persistence_relative_l2": 0.7576915747962827,
+        "mse_skill_vs_persistence": 0.8054035419736385,
+        "predicted_kinetic_energy": 2.4544152061140756,
+        "target_kinetic_energy": 2.5619560953331146,
+        "samples": 351
+      }
+    ],
+    "mean_normalized_mse": 0.07205985695505765
+  }
+}
