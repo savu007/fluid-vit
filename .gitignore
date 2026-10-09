@@ -16,6 +16,7 @@ logs/slurm/*
 !logs/slurm/.gitkeep
 
 *.npy
+*.npz
 *.nc
 
 # Preserve relocated historical Slurm records.
