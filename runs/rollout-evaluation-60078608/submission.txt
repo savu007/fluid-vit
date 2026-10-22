@@ -1,0 +1,4 @@
+MATEY checkpoint: /pscratch/sd/s/savu/fluid-vit/matey-memory/rollout5-59983390/best.pt
+Yalamanchi checkpoint: /global/u1/s/savu/projects/fluid-vit/runs/matey-yalamanchi-comparison-59524397/yalamanchi/best.pt
+Evaluation job: 60078608
+Results: /global/homes/s/savu/projects/fluid-vit/runs/rollout-statistics-60078608

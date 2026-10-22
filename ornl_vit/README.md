@@ -7,6 +7,7 @@ results in a paper: it records tokenization, hierarchy, loss, gradient stops,
 boundary handling, data selection, and verification limits.
 
 - Upstream: [ORNL/MATEY](https://github.com/ORNL/MATEY).
+- New isolated experiments: [checkpointed pushforward baseline and RingX jobs](memory/README.md).
 - Pinned commit: `631a4139295d4f51e573d474cff7d6586f3aa310`.
 - Original MIT license: [LICENSE](LICENSE).
 - Settings: [config.yaml](config.yaml); wrapper: [model.py](model.py).

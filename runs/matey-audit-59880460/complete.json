@@ -1,0 +1,7 @@
+{
+  "epochs": 25,
+  "optimizer_updates": 5350,
+  "stopped_for_time": false,
+  "selected_epoch": 25,
+  "best_validation": 0.020184110530980126
+}

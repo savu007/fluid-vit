@@ -1,0 +1,7 @@
+{
+  "origins": 8,
+  "horizon": 5,
+  "checkpoint": "/pscratch/sd/s/savu/fluid-vit/matey-memory/rollout5-59983390/best.pt",
+  "epoch": 100,
+  "full_arrays": "/pscratch/sd/s/savu/fluid-vit/matey-corrections-60079620"
+}

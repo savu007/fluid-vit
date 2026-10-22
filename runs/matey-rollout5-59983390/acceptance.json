@@ -1,0 +1,213 @@
+{
+  "passed": true,
+  "full_grid": 64,
+  "seconds": 9.732558600997436,
+  "ranks": [
+    {
+      "rank": 0,
+      "updates": [
+        {
+          "update": 1,
+          "loss": 10.223341941833496,
+          "stages": [
+            {
+              "lead": 1,
+              "allocated": 4285018112,
+              "reserved": 4791992320,
+              "peak_allocated": 4300617728
+            },
+            {
+              "lead": 2,
+              "allocated": 8517792256,
+              "reserved": 9032433664,
+              "peak_allocated": 8533391872
+            },
+            {
+              "lead": 3,
+              "allocated": 12739780608,
+              "reserved": 13220446208,
+              "peak_allocated": 12755380224
+            },
+            {
+              "lead": 4,
+              "allocated": 16960496128,
+              "reserved": 17458790400,
+              "peak_allocated": 16976095744
+            },
+            {
+              "lead": 5,
+              "allocated": 21182634496,
+              "reserved": 21697134592,
+              "peak_allocated": 21198758400
+            },
+            {
+              "stage": "after_backward_and_update",
+              "allocated": 168076288,
+              "reserved": 23288872960,
+              "peak_allocated": 22555619328
+            }
+          ]
+        },
+        {
+          "update": 2,
+          "loss": 8.19409465789795,
+          "stages": [
+            {
+              "lead": 1,
+              "allocated": 4346466304,
+              "reserved": 23288872960,
+              "peak_allocated": 22555619328
+            },
+            {
+              "lead": 2,
+              "allocated": 8581187584,
+              "reserved": 23288872960,
+              "peak_allocated": 22555619328
+            },
+            {
+              "lead": 3,
+              "allocated": 12801753088,
+              "reserved": 23288872960,
+              "peak_allocated": 22555619328
+            },
+            {
+              "lead": 4,
+              "allocated": 17022842880,
+              "reserved": 23288872960,
+              "peak_allocated": 22555619328
+            },
+            {
+              "lead": 5,
+              "allocated": 21246029824,
+              "reserved": 23288872960,
+              "peak_allocated": 22555619328
+            },
+            {
+              "stage": "after_backward_and_update",
+              "allocated": 168076288,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            }
+          ]
+        },
+        {
+          "update": 3,
+          "loss": 6.980700492858887,
+          "stages": [
+            {
+              "lead": 1,
+              "allocated": 4346466304,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            },
+            {
+              "lead": 2,
+              "allocated": 8581187584,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            },
+            {
+              "lead": 3,
+              "allocated": 12801753088,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            },
+            {
+              "lead": 4,
+              "allocated": 17022842880,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            },
+            {
+              "lead": 5,
+              "allocated": 21246029824,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            },
+            {
+              "stage": "after_backward_and_update",
+              "allocated": 168076288,
+              "reserved": 23305650176,
+              "peak_allocated": 22609970688
+            }
+          ]
+        }
+      ],
+      "memory": {
+        "allocated": 71906304,
+        "reserved": 2275409920,
+        "peak_allocated": 22609970688
+      }
+    }
+  ],
+  "validation": {
+    "horizon": 5,
+    "samples": 1,
+    "horizons": [
+      {
+        "lead_steps": 1,
+        "physical_mse": 4.827061588423977,
+        "normalized_mse": 2.774910013224082,
+        "physical_mae": 1.6978078561465992,
+        "relative_l2": 1.6796202181623472,
+        "persistence_mse": 0.09688234995315963,
+        "mse_skill_vs_persistence": -48.823952358275264,
+        "predicted_kinetic_energy": 5.283950307070396,
+        "target_kinetic_energy": 2.566562896329267,
+        "samples": 1
+      },
+      {
+        "lead_steps": 2,
+        "physical_mse": 6.668635409762971,
+        "normalized_mse": 3.7971390524622692,
+        "physical_mae": 2.008244444793443,
+        "relative_l2": 1.9752175125685207,
+        "persistence_mse": 0.2731585413168115,
+        "mse_skill_vs_persistence": -23.41305835657042,
+        "predicted_kinetic_energy": 7.633033314305076,
+        "target_kinetic_energy": 2.563884036323483,
+        "samples": 1
+      },
+      {
+        "lead_steps": 3,
+        "physical_mse": 9.13467502475766,
+        "normalized_mse": 5.172912906226432,
+        "physical_mae": 2.3605432283620638,
+        "relative_l2": 2.31290302757301,
+        "persistence_mse": 0.4257074514282915,
+        "mse_skill_vs_persistence": -20.45763480087065,
+        "predicted_kinetic_energy": 11.245912888609404,
+        "target_kinetic_energy": 2.5613534437270062,
+        "samples": 1
+      },
+      {
+        "lead_steps": 4,
+        "physical_mse": 12.933784271546287,
+        "normalized_mse": 7.2862745886028035,
+        "physical_mae": 2.818410786938602,
+        "relative_l2": 2.753516374232264,
+        "persistence_mse": 0.5469690675845705,
+        "mse_skill_vs_persistence": -22.646281002072403,
+        "predicted_kinetic_energy": 16.941951386394706,
+        "target_kinetic_energy": 2.5588306556909,
+        "samples": 1
+      },
+      {
+        "lead_steps": 5,
+        "physical_mse": 18.175228671220605,
+        "normalized_mse": 10.206122444892138,
+        "physical_mae": 3.396999312091971,
+        "relative_l2": 3.26568978928729,
+        "persistence_mse": 0.6454182929292526,
+        "mse_skill_vs_persistence": -27.160386636597675,
+        "predicted_kinetic_energy": 24.80516224508254,
+        "target_kinetic_energy": 2.5563557181918393,
+        "samples": 1
+      }
+    ],
+    "mean_normalized_mse": 5.847471801081544
+  },
+  "validation_seconds_per_window": 0.5960741639137268,
+  "checkpoint_reload": true,
+  "production_uses_fresh_initialization": true
+}

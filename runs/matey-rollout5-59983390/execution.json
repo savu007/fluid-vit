@@ -1,0 +1,20 @@
+{
+  "variant": "baseline",
+  "world_size": 1,
+  "settings": {
+    "base_config": "../config.yaml",
+    "activation_checkpointing": true,
+    "objective": "rollout_normalized_mse",
+    "epochs": 100,
+    "smoke_updates": 3,
+    "wall_budget_seconds": 46800
+  },
+  "torch": "2.8.0+cu129",
+  "upstream_commit": "631a4139295d4f51e573d474cff7d6586f3aa310",
+  "flash_attn": null,
+  "hardware": "NVIDIA A100-SXM4-40GB",
+  "loss": "normalized MSE averaged over all five leads, full recursive gradients",
+  "selection": "mean normalized MSE over five validation leads",
+  "sampling": "original four-history/five-target windows; unused targets retained for evaluation",
+  "partition_semantics": "full domain"
+}

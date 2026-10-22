@@ -2,7 +2,7 @@
 import torch
 
 
-def forecast_five(model, history, times):
+def forecast_five(model, history, times, memory_callback=None):
     """Physical-valued [B,4,C,X,Y,Z] -> [B,5,C,X,Y,Z].
 
     times is [B,9] in recorded simulation-time units. Autograd is retained;
@@ -25,6 +25,8 @@ def forecast_five(model, history, times):
             raise ValueError('One-step model returned the wrong shape')
         if not torch.isfinite(prediction).all():
             raise FloatingPointError(f'Nonfinite prediction at lead {step + 1}')
+        if memory_callback is not None:
+            memory_callback(step + 1)
         predictions.append(prediction)
         state = torch.cat((state[:, 1:], prediction[:, None]), dim=1)
     return torch.stack(predictions, dim=1)

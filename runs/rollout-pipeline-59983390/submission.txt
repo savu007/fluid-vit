@@ -1,0 +1,5 @@
+Training job: 59983390
+MATEY checkpoint: /pscratch/sd/s/savu/fluid-vit/matey-memory/rollout5-59983390/best.pt
+Yalamanchi checkpoint: /global/u1/s/savu/projects/fluid-vit/runs/matey-yalamanchi-comparison-59524397/yalamanchi/best.pt
+Evaluation job: 59983391
+Results: /global/homes/s/savu/projects/fluid-vit/runs/rollout-statistics-59983391

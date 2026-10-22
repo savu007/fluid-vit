@@ -1,0 +1,119 @@
+{
+  "scope": "One fixed real training sequence, file 131 frames 0\u20138, stride-4 spatial sampling to 16\u00b3, width 24; 12 blocks retained. 50 updates. Evaluation disables stochastic depth. Not evidence of full-size convergence.",
+  "curves": {
+    "one_step": [
+      {
+        "update": 0,
+        "one_step_nmse": 1.4152296781539917,
+        "fifth_step_nmse": 1.2776166200637817
+      },
+      {
+        "update": 5,
+        "one_step_nmse": 1.382070541381836,
+        "fifth_step_nmse": 1.26925790309906
+      },
+      {
+        "update": 10,
+        "one_step_nmse": 1.3511205911636353,
+        "fifth_step_nmse": 1.2619075775146484
+      },
+      {
+        "update": 15,
+        "one_step_nmse": 1.3216277360916138,
+        "fifth_step_nmse": 1.2474656105041504
+      },
+      {
+        "update": 20,
+        "one_step_nmse": 1.2931228876113892,
+        "fifth_step_nmse": 1.2313400506973267
+      },
+      {
+        "update": 25,
+        "one_step_nmse": 1.2652994394302368,
+        "fifth_step_nmse": 1.2342015504837036
+      },
+      {
+        "update": 30,
+        "one_step_nmse": 1.2379175424575806,
+        "fifth_step_nmse": 1.2280845642089844
+      },
+      {
+        "update": 35,
+        "one_step_nmse": 1.2109118700027466,
+        "fifth_step_nmse": 1.2206672430038452
+      },
+      {
+        "update": 40,
+        "one_step_nmse": 1.1841460466384888,
+        "fifth_step_nmse": 1.2161998748779297
+      },
+      {
+        "update": 45,
+        "one_step_nmse": 1.157472014427185,
+        "fifth_step_nmse": 1.2170096635818481
+      },
+      {
+        "update": 50,
+        "one_step_nmse": 1.1309418678283691,
+        "fifth_step_nmse": 1.2158410549163818
+      }
+    ],
+    "pushforward": [
+      {
+        "update": 0,
+        "one_step_nmse": 1.4152296781539917,
+        "fifth_step_nmse": 1.2776166200637817
+      },
+      {
+        "update": 5,
+        "one_step_nmse": 1.4049142599105835,
+        "fifth_step_nmse": 1.2610198259353638
+      },
+      {
+        "update": 10,
+        "one_step_nmse": 1.3944803476333618,
+        "fifth_step_nmse": 1.2515718936920166
+      },
+      {
+        "update": 15,
+        "one_step_nmse": 1.3838629722595215,
+        "fifth_step_nmse": 1.2419476509094238
+      },
+      {
+        "update": 20,
+        "one_step_nmse": 1.373046875,
+        "fifth_step_nmse": 1.2356268167495728
+      },
+      {
+        "update": 25,
+        "one_step_nmse": 1.3627816438674927,
+        "fifth_step_nmse": 1.2214863300323486
+      },
+      {
+        "update": 30,
+        "one_step_nmse": 1.3538366556167603,
+        "fifth_step_nmse": 1.2126410007476807
+      },
+      {
+        "update": 35,
+        "one_step_nmse": 1.3454718589782715,
+        "fifth_step_nmse": 1.194093108177185
+      },
+      {
+        "update": 40,
+        "one_step_nmse": 1.3378747701644897,
+        "fifth_step_nmse": 1.183228850364685
+      },
+      {
+        "update": 45,
+        "one_step_nmse": 1.3302589654922485,
+        "fifth_step_nmse": 1.1787666082382202
+      },
+      {
+        "update": 50,
+        "one_step_nmse": 1.3228989839553833,
+        "fifth_step_nmse": 1.1717411279678345
+      }
+    ]
+  }
+}

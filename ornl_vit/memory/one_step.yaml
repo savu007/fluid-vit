@@ -1,0 +1,7 @@
+# Keep the pushforward run's windows and model; change direct supervision only.
+base_config: ../config.yaml
+activation_checkpointing: true
+objective: one_step_normalized_mse
+epochs: 25
+smoke_updates: 3
+wall_budget_seconds: 5400

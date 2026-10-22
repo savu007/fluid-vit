@@ -1,0 +1,106 @@
+[
+  {
+    "path": "matey/models/avit.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/avit.py",
+    "identical": true,
+    "upstream_sha256": "2bc1700e9ec38e8a2002b7a996666b469fda705f8f67689866c2dbb3550e3e6c",
+    "local_sha256": "2bc1700e9ec38e8a2002b7a996666b469fda705f8f67689866c2dbb3550e3e6c",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/shared_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/shared_modules.py",
+    "identical": true,
+    "upstream_sha256": "f7ac41b1ec7c16bb40f983d867f01684b4a36510e85f0095aae4b0607c85039a",
+    "local_sha256": "f7ac41b1ec7c16bb40f983d867f01684b4a36510e85f0095aae4b0607c85039a",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/turbt.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/turbt.py",
+    "identical": true,
+    "upstream_sha256": "4d505a23bda7a64ac67bbbf8af8dacfd9c0f4e033bcd43ea3c5fe2a4e400f5cd",
+    "local_sha256": "4d505a23bda7a64ac67bbbf8af8dacfd9c0f4e033bcd43ea3c5fe2a4e400f5cd",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/spacetime_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/spacetime_modules.py",
+    "identical": true,
+    "upstream_sha256": "d56bc4721bf2fb03dbfba6069656de5aba66e621ad146bdc07f07ec882dc9fce",
+    "local_sha256": "d56bc4721bf2fb03dbfba6069656de5aba66e621ad146bdc07f07ec882dc9fce",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/spatial_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/spatial_modules.py",
+    "identical": true,
+    "upstream_sha256": "bbe9288cf1986b6e854a87b0aededd554bf4e4498949d97310e9f2d825649063",
+    "local_sha256": "bbe9288cf1986b6e854a87b0aededd554bf4e4498949d97310e9f2d825649063",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/time_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/time_modules.py",
+    "identical": true,
+    "upstream_sha256": "0945134f7a84465d23cb7c51b6154bb6a80f8b5141150cb2350eaef7af54d5fe",
+    "local_sha256": "0945134f7a84465d23cb7c51b6154bb6a80f8b5141150cb2350eaef7af54d5fe",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/ringX_attn.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/ringX_attn.py",
+    "identical": true,
+    "upstream_sha256": "7be6a69616ed86b829a6a99792cc8b509bc64d84203036d47b0a4218ae5b20d6",
+    "local_sha256": "7be6a69616ed86b829a6a99792cc8b509bc64d84203036d47b0a4218ae5b20d6",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/vit.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/vit.py",
+    "identical": true,
+    "upstream_sha256": "1a275b113f03f6c1145aab80695e8928b7d166b589bd122a21aeeeb63d29ff16",
+    "local_sha256": "1a275b113f03f6c1145aab80695e8928b7d166b589bd122a21aeeeb63d29ff16",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/input_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/input_modules.py",
+    "identical": true,
+    "upstream_sha256": "6bb3e00dc4b1eb14abd084c4089ccd40cc5ab5082cf0f1fbc649eeae01665f16",
+    "local_sha256": "6bb3e00dc4b1eb14abd084c4089ccd40cc5ab5082cf0f1fbc649eeae01665f16",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/basemodel.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/basemodel.py",
+    "identical": true,
+    "upstream_sha256": "c5f65876aa6a430f5ae15da4efb125798db1d05bc3b21d8a4f302632cde7b5a3",
+    "local_sha256": "c5f65876aa6a430f5ae15da4efb125798db1d05bc3b21d8a4f302632cde7b5a3",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/svit.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/svit.py",
+    "identical": true,
+    "upstream_sha256": "17a37893d6eefdad96e246bf57d95eca5bd1b80834e65a4a1a89ecea763ebd81",
+    "local_sha256": "17a37893d6eefdad96e246bf57d95eca5bd1b80834e65a4a1a89ecea763ebd81",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/positionbias_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/positionbias_modules.py",
+    "identical": true,
+    "upstream_sha256": "6479ea7c03c1b3bf3ebf0a3912ce96ab9a6bed3e9493e220c71f66878221fdbe",
+    "local_sha256": "6479ea7c03c1b3bf3ebf0a3912ce96ab9a6bed3e9493e220c71f66878221fdbe",
+    "diff": ""
+  },
+  {
+    "path": "matey/models/attention_modules.py",
+    "url": "https://raw.githubusercontent.com/ORNL/MATEY/631a4139295d4f51e573d474cff7d6586f3aa310/matey/models/attention_modules.py",
+    "identical": false,
+    "upstream_sha256": "b61cbcb25ad6c8f2b6cec010cfcdfdd01568674f6925892d02a0ca479044cbe4",
+    "local_sha256": "687835b9e0d8274d504d5021d2e0b267ca9dda638f0b3720906b2128afc317e0",
+    "diff": "--- upstream\n+++ local\n@@ -9,13 +9,13 @@\n from einops import rearrange, repeat\n import math\n from functools import partial\n-from timm.layers import DropPath\n-from .ringX_attn import ringX_varlen_attn_func as ringX_attn_func\n+from ..compat import DropPath  # Local dependency adapter; see ornl_vit/README.md\n+from ..compat import ringX_attn_func\n from .shared_modules import MLP, InstanceNorm1d_Masked\n #from .spatial_modules import RMSInstanceNormSpace\n \n import sys\n-from flash_attn import flash_attn_func\n+from ..compat import flash_attn_func\n from torch.nn.attention import SDPBackend, sdpa_kernel\n \n \n"
+  }
+]

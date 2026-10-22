@@ -1,0 +1,6 @@
+base_config: ../config.yaml
+activation_checkpointing: true
+objective: rollout_normalized_mse
+epochs: 100
+smoke_updates: 3
+wall_budget_seconds: 46800  # 13 hours training; measured evaluation reserve may stop earlier

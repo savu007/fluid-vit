@@ -1,0 +1,6 @@
+# Both jobs resolve this same baseline configuration and record the full result.
+base_config: ../config.yaml
+activation_checkpointing: true
+objective: pushforward_final_normalized_mse
+smoke_updates: 3
+wall_budget_seconds: 30600  # stop training after 8.5 h, leaving 30 min for evaluation
