@@ -1,0 +1,8 @@
+{
+  "issue": "fcntl.flock failed with errno 524 after Yalamanchi training and evaluation",
+  "repair": "Lock-free atomic summary writes with unique temporary filenames",
+  "legacy_source_sha256": "6628c2ed47d417d9d1a9dc51c60de72e814457d3585c1ff948dc27653a1d75b8",
+  "training_loop_unchanged": true,
+  "yalamanchi_complete": true,
+  "matey_complete": false
+}

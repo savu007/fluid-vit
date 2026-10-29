@@ -19,6 +19,6 @@ logs/slurm/*
 *.npz
 *.nc
 
-# Preserve relocated historical Slurm records.
-!logs/slurm/*.out
-!logs/slurm/*.err
+# Scheduler and other runtime logs.
+*.out
+*.err

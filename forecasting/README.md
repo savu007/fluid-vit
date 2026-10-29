@@ -1,5 +1,10 @@
 # Matched rollout comparison
 
+For the 25-epoch MATEY/Yalamanchi finest-stage looping diagnostic, see
+[the exact architecture, loss and profiling workflow](docs/looped-finest-stage.md).
+Run `bash jobs/submit-looped-pipeline.sh` for automatic profiling, training and summaries; training allocations
+are calculated from the resulting GPU measurements.
+
 For the new four-frame MATEY versus one-frame Yalamanchi experiment, see
 [the comparison and energy diagnostics](docs/matey-yalamanchi-comparison.md)
 and `jobs/matey-yalamanchi-comparison.sbatch`. It trains both models afresh and
@@ -144,3 +149,7 @@ python -B -m unittest baseline_vit.test_baseline yalamanchi_vit.test_baseline fo
 
 [Five-step pushforward versus rollout, with 100-step testing](docs/yalamanchi-training-strategies.md).
 Submit from the repository root with `sbatch jobs/yalamanchi-training-strategies.sbatch`.
+
+The approved 200-epoch MATEY temporal-mask experiment is described in
+[docs/matey-causal-training.md](docs/matey-causal-training.md). Submit its causal and
+normalization-matched unmasked runs with `bash jobs/submit-matey-causal.sh`.

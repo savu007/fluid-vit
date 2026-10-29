@@ -1,0 +1,18 @@
+test_input_normalization_also_uses_later_frames (forecasting.test_causal.CausalityTests.test_input_normalization_also_uses_later_frames) ... ok
+test_mask_allows_whole_current_frame (forecasting.test_causal.CausalityTests.test_mask_allows_whole_current_frame) ... ok
+test_multiple_blocks_preserve_prefix_only_with_local_normalization (forecasting.test_causal.CausalityTests.test_multiple_blocks_preserve_prefix_only_with_local_normalization) ... ok
+test_unmasked_adapter_matches_upstream_outputs_and_gradients (forecasting.test_causal.CausalityTests.test_unmasked_adapter_matches_upstream_outputs_and_gradients) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.073s
+
+OK
+causal=False, frame_local_norm=False, prefix=8: max change=10.759802
+causal=False, frame_local_norm=False, prefix=16: max change=9.8754416
+causal=False, frame_local_norm=False, prefix=24: max change=10.822721
+causal=True, frame_local_norm=False, prefix=8: max change=11.630375
+causal=True, frame_local_norm=False, prefix=16: max change=8.9745712
+causal=True, frame_local_norm=False, prefix=24: max change=9.4828606
+causal=True, frame_local_norm=True, prefix=8: max change=0
+causal=True, frame_local_norm=True, prefix=16: max change=0
+causal=True, frame_local_norm=True, prefix=24: max change=0

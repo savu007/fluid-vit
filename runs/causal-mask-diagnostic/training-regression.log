@@ -1,0 +1,44 @@
+test_input_normalization_also_uses_later_frames (forecasting.test_causal.CausalityTests.test_input_normalization_also_uses_later_frames) ... ok
+test_mask_allows_whole_current_frame (forecasting.test_causal.CausalityTests.test_mask_allows_whole_current_frame) ... ok
+test_multiple_blocks_preserve_prefix_only_with_local_normalization (forecasting.test_causal.CausalityTests.test_multiple_blocks_preserve_prefix_only_with_local_normalization) ... ok
+test_unmasked_adapter_matches_upstream_outputs_and_gradients (forecasting.test_causal.CausalityTests.test_unmasked_adapter_matches_upstream_outputs_and_gradients) ... ok
+test_checkpoint_gradient_parity_and_control_initialization (forecasting.test_causal_model.OrderedModelTests.test_checkpoint_gradient_parity_and_control_initialization) ... ok
+test_full_model_prefix_invariance_at_every_block_and_level (forecasting.test_causal_model.OrderedModelTests.test_full_model_prefix_invariance_at_every_block_and_level) ... ok
+test_prefix_statistics_match_upstream_latest_and_do_not_change_earlier (forecasting.test_causal_model.OrderedModelTests.test_prefix_statistics_match_upstream_latest_and_do_not_change_earlier) ... ok
+test_profile_segment_resume_evaluate_and_compare (forecasting.test_causal_model.PipelineTests.test_profile_segment_resume_evaluate_and_compare) ... ok
+test_auxiliary_matches_independent_prefix_decode_and_reload (forecasting.test_looped.LoopTests.test_auxiliary_matches_independent_prefix_decode_and_reload) ... ok
+test_checkpoint_outputs_gradients_and_gate_learning (forecasting.test_looped.LoopTests.test_checkpoint_outputs_gradients_and_gate_learning) ... ok
+test_control_is_original_and_shared_geometry_is_preserved (forecasting.test_looped.LoopTests.test_control_is_original_and_shared_geometry_is_preserved) ... ok
+test_end_to_end_both_models (forecasting.test_looped.LoopTests.test_end_to_end_both_models) ... ok
+test_full_rollout_auxiliary_supervision_and_final_state_recursion (forecasting.test_looped.LoopTests.test_full_rollout_auxiliary_supervision_and_final_state_recursion) ... ok
+test_shared_gradient_equals_sum_of_independent_copies (forecasting.test_looped.LoopTests.test_shared_gradient_equals_sum_of_independent_copies) ... ok
+test_100_step_deduplication_and_alignment (forecasting.test_training_strategies.CrossFileTests.test_100_step_deduplication_and_alignment) ... ok
+test_conflicting_duplicate_rejected (forecasting.test_training_strategies.CrossFileTests.test_conflicting_duplicate_rejected) ... ok
+test_gap_and_overlap_rejected (forecasting.test_training_strategies.CrossFileTests.test_gap_and_overlap_rejected) ... ok
+test_short_or_training_split_rejected (forecasting.test_training_strategies.CrossFileTests.test_short_or_training_split_rejected) ... ok
+test_detached_pushforward_and_full_rollout (forecasting.test_training_strategies.GradientTests.test_detached_pushforward_and_full_rollout) ... ok
+test_both_train_save_and_test_100 (forecasting.test_training_strategies.WorkerTests.test_both_train_save_and_test_100) ... ok
+test_incomplete_summary_retains_status (forecasting.test_training_strategies.WorkerTests.test_incomplete_summary_retains_status) ... ok
+test_checkpoint_stochastic_outputs_gradients_and_state_keys (ornl_vit.memory.test_memory.MemoryTests.test_checkpoint_stochastic_outputs_gradients_and_state_keys) ... ok
+test_checkpointed_full_rollout_gradient_parity (ornl_vit.memory.test_memory.MemoryTests.test_checkpointed_full_rollout_gradient_parity) ... ok
+test_end_to_end_acceptance_train_reload_energy (ornl_vit.memory.test_memory.MemoryTests.test_end_to_end_acceptance_train_reload_energy) ... ok
+test_one_step_end_to_end (ornl_vit.memory.test_memory.MemoryTests.test_one_step_end_to_end) ... ok
+test_one_step_uses_observed_history_first_target_and_gradient (ornl_vit.memory.test_memory.MemoryTests.test_one_step_uses_observed_history_first_target_and_gradient) ... ok
+test_pushforward_gradient_and_history (ornl_vit.memory.test_memory.MemoryTests.test_pushforward_gradient_and_history) ... ok
+test_rollout_end_to_end (ornl_vit.memory.test_memory.MemoryTests.test_rollout_end_to_end) ... ok
+test_rollout_supervises_all_leads_with_full_gradient (ornl_vit.memory.test_memory.MemoryTests.test_rollout_supervises_all_leads_with_full_gradient) ... ok
+test_missing_then_concurrent_complete (forecasting.test_long_summary.SummaryTests.test_missing_then_concurrent_complete) ... ok
+
+----------------------------------------------------------------------
+Ran 30 tests in 79.924s
+
+OK
+causal=False, frame_local_norm=False, prefix=8: max change=10.759802
+causal=False, frame_local_norm=False, prefix=16: max change=9.8754416
+causal=False, frame_local_norm=False, prefix=24: max change=10.822721
+causal=True, frame_local_norm=False, prefix=8: max change=11.630375
+causal=True, frame_local_norm=False, prefix=16: max change=8.9745712
+causal=True, frame_local_norm=False, prefix=24: max change=9.4828606
+causal=True, frame_local_norm=True, prefix=8: max change=0
+causal=True, frame_local_norm=True, prefix=16: max change=0
+causal=True, frame_local_norm=True, prefix=24: max change=0
